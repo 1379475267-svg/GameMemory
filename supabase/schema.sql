@@ -37,6 +37,10 @@ create index if not exists games_updated_at_idx on public.games (updated_at desc
 
 alter table public.games enable row level security;
 
+grant usage on schema public to service_role;
+grant all privileges on table public.games to service_role;
+grant usage, select on all sequences in schema public to service_role;
+
 drop policy if exists "No browser access to games" on public.games;
 create policy "No browser access to games"
 on public.games
