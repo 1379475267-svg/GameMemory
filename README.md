@@ -1,8 +1,7 @@
-# GameMemory
+﻿# GameMemory
 
 > Personal Game Experience Archive
-> 个人游戏体验记录库
-
+> 涓汉娓告垙浣撻獙璁板綍搴?
 ![Vue](https://img.shields.io/badge/Vue%203-Frontend-42b883)
 ![Vite](https://img.shields.io/badge/Vite-Build-646cff)
 ![Django](https://img.shields.io/badge/Django-Backend-0c4b33)
@@ -13,7 +12,7 @@
 
 ---
 
-## Project Overview / 项目概览
+## Project Overview / 椤圭洰姒傝
 
 **GameMemory** is a personal game archive for recording what you played, how you felt, and which games left a mark.
 
@@ -21,15 +20,12 @@ It lets you search games through the RAWG Video Games Database API, import offic
 
 The app also enriches detail pages with RAWG screenshots and SteamGridDB artwork, so each game page feels closer to a small private museum entry than a plain database row.
 
-**GameMemory** 是一个个人游戏体验档案馆，用来记录你玩过什么、玩到哪里、给了多少分，以及这款游戏给你的主观感受。
-
-项目通过 Django 后端调用 RAWG API 搜索游戏，并将封面、简介、发售日期、平台、类型等官方资料保存到本地 SQLite 数据库。之后你可以为每个游戏补充游玩状态、评分、体验标签、游玩平台和文字评价。
-
-详情页还会结合 RAWG 截图与 SteamGridDB 高质量视觉素材，让每个游戏档案更像一个私人收藏条目。
-
+**GameMemory** 鏄竴涓釜浜烘父鎴忎綋楠屾。妗堥锛岀敤鏉ヨ褰曚綘鐜╄繃浠€涔堛€佺帺鍒板摢閲屻€佺粰浜嗗灏戝垎锛屼互鍙婅繖娆炬父鎴忕粰浣犵殑涓昏鎰熷彈銆?
+椤圭洰閫氳繃 Django 鍚庣璋冪敤 RAWG API 鎼滅储娓告垙锛屽苟灏嗗皝闈€佺畝浠嬨€佸彂鍞棩鏈熴€佸钩鍙般€佺被鍨嬬瓑瀹樻柟璧勬枡淇濆瓨鍒版湰鍦?SQLite 鏁版嵁搴撱€備箣鍚庝綘鍙互涓烘瘡涓父鎴忚ˉ鍏呮父鐜╃姸鎬併€佽瘎鍒嗐€佷綋楠屾爣绛俱€佹父鐜╁钩鍙板拰鏂囧瓧璇勪环銆?
+璇︽儏椤佃繕浼氱粨鍚?RAWG 鎴浘涓?SteamGridDB 楂樿川閲忚瑙夌礌鏉愶紝璁╂瘡涓父鎴忔。妗堟洿鍍忎竴涓浜烘敹钘忔潯鐩€?
 ---
 
-## Online Demo / 在线预览
+## Online Demo / 鍦ㄧ嚎棰勮
 
 GitHub Pages demo:
 
@@ -41,39 +37,29 @@ The online demo is a static Vue build with built-in sample data. It is designed 
 
 Because GitHub Pages cannot run the Django backend, the online demo does not call RAWG or SteamGridDB directly and does not use real API keys. To use real search, import, caching, and local database features, run the backend locally.
 
-在线预览是一个带示例数据的静态 Vue Demo，用来展示界面、页面流程、视觉风格、动效、详情页、搜索页和统计页。
-
-由于 GitHub Pages 不能运行 Django 后端，在线 Demo 不会直接调用 RAWG 或 SteamGridDB，也不会使用真实 API key。真实搜索、导入、本地缓存和数据库功能需要在本地启动后端。
-
+鍦ㄧ嚎棰勮鏄竴涓甫绀轰緥鏁版嵁鐨勯潤鎬?Vue Demo锛岀敤鏉ュ睍绀虹晫闈€侀〉闈㈡祦绋嬨€佽瑙夐鏍笺€佸姩鏁堛€佽鎯呴〉銆佹悳绱㈤〉鍜岀粺璁￠〉銆?
+鐢变簬 GitHub Pages 涓嶈兘杩愯 Django 鍚庣锛屽湪绾?Demo 涓嶄細鐩存帴璋冪敤 RAWG 鎴?SteamGridDB锛屼篃涓嶄細浣跨敤鐪熷疄 API key銆傜湡瀹炴悳绱€佸鍏ャ€佹湰鍦扮紦瀛樺拰鏁版嵁搴撳姛鑳介渶瑕佸湪鏈湴鍚姩鍚庣銆?
 ---
 
-## Core Features / 核心功能
+## Core Features / 鏍稿績鍔熻兘
 
-### Game Discovery / 游戏发现
+### Game Discovery / 娓告垙鍙戠幇
 
 - Search games by name through RAWG.
 - Browse recent high-interest games on the search page.
 - Import selected games into the local archive.
 - API keys are stored only in the Django backend.
 
-- 通过 RAWG 按名称搜索游戏。
-- 搜索页默认展示近期高热度游戏。
-- 从结果中选择游戏并导入本地数据库。
-- API key 只保存在 Django 后端，不进入前端代码。
-
-### Personal Archive / 个人档案
+- 閫氳繃 RAWG 鎸夊悕绉版悳绱㈡父鎴忋€?- 鎼滅储椤甸粯璁ゅ睍绀鸿繎鏈熼珮鐑害娓告垙銆?- 浠庣粨鏋滀腑閫夋嫨娓告垙骞跺鍏ユ湰鍦版暟鎹簱銆?- API key 鍙繚瀛樺湪 Django 鍚庣锛屼笉杩涘叆鍓嶇浠ｇ爜銆?
+### Personal Archive / 涓汉妗ｆ
 
 - View imported games as dark archive-style cards.
 - Filter the library by play status.
 - Open a game detail page with official metadata and personal notes.
 - Delete games from the local archive.
 
-- 使用深色卡片式界面浏览已导入游戏。
-- 按游玩状态筛选游戏库。
-- 在详情页查看官方资料和个人评价。
-- 支持删除本地游戏档案。
-
-### Review System / 评价系统
+- 浣跨敤娣辫壊鍗＄墖寮忕晫闈㈡祻瑙堝凡瀵煎叆娓告垙銆?- 鎸夋父鐜╃姸鎬佺瓫閫夋父鎴忓簱銆?- 鍦ㄨ鎯呴〉鏌ョ湅瀹樻柟璧勬枡鍜屼釜浜鸿瘎浠枫€?- 鏀寔鍒犻櫎鏈湴娓告垙妗ｆ銆?
+### Review System / 璇勪环绯荤粺
 
 - Play status: backlog, playing, completed, paused, dropped.
 - Play platform.
@@ -82,26 +68,16 @@ Because GitHub Pages cannot run the Django backend, the online demo does not cal
 - Experience tags.
 - Written review.
 
-- 游玩状态：想玩、游玩中、已通关、暂停、弃坑。
-- 游玩平台。
-- 总评分。
-- 画质、剧情、玩法、沉浸感、音乐评分。
-- 体验标签。
-- 文字评价。
-
-### Visual Enhancement / 视觉增强
+- 娓哥帺鐘舵€侊細鎯崇帺銆佹父鐜╀腑銆佸凡閫氬叧銆佹殏鍋溿€佸純鍧戙€?- 娓哥帺骞冲彴銆?- 鎬昏瘎鍒嗐€?- 鐢昏川銆佸墽鎯呫€佺帺娉曘€佹矇娴告劅銆侀煶涔愯瘎鍒嗐€?- 浣撻獙鏍囩銆?- 鏂囧瓧璇勪环銆?
+### Visual Enhancement / 瑙嗚澧炲己
 
 - RAWG screenshots for detail page galleries.
 - RAWG trailers and store links where available.
 - SteamGridDB hero artwork, poster artwork, and transparent logos.
 - Soft page reveal, hover lift, image zoom, and slow hero background motion.
 
-- 使用 RAWG 截图生成详情页影像画廊。
-- 支持 RAWG 预告片和商店链接。
-- 使用 SteamGridDB 的横幅图、竖版封面和透明 Logo。
-- 包含页面淡入、卡片上浮、图片放大、详情页背景缓慢缩放等动效。
-
-### Statistics / 统计
+- 浣跨敤 RAWG 鎴浘鐢熸垚璇︽儏椤靛奖鍍忕敾寤娿€?- 鏀寔 RAWG 棰勫憡鐗囧拰鍟嗗簵閾炬帴銆?- 浣跨敤 SteamGridDB 鐨勬í骞呭浘銆佺珫鐗堝皝闈㈠拰閫忔槑 Logo銆?- 鍖呭惈椤甸潰娣″叆銆佸崱鐗囦笂娴€佸浘鐗囨斁澶с€佽鎯呴〉鑳屾櫙缂撴參缂╂斁绛夊姩鏁堛€?
+### Statistics / 缁熻
 
 - Total game count.
 - Completed game count.
@@ -109,15 +85,10 @@ Because GitHub Pages cannot run the Django backend, the online demo does not cal
 - Most used experience tags.
 - Highest-rated game.
 
-- 游戏总数。
-- 已通关数量。
-- 平均评分。
-- 最常用体验标签。
-- 评分最高游戏。
-
+- 娓告垙鎬绘暟銆?- 宸查€氬叧鏁伴噺銆?- 骞冲潎璇勫垎銆?- 鏈€甯哥敤浣撻獙鏍囩銆?- 璇勫垎鏈€楂樻父鎴忋€?
 ---
 
-## Tech Stack / 技术栈
+## Tech Stack / 鎶€鏈爤
 
 | Layer | Technology | Usage |
 |---|---|---|
@@ -132,50 +103,48 @@ Because GitHub Pages cannot run the Django backend, the online demo does not cal
 
 ---
 
-## Project Structure / 项目结构
+## Project Structure / 椤圭洰缁撴瀯
 
 ```text
 GameMemory/
-├── backend/
-│   ├── manage.py
-│   ├── requirements.txt
-│   ├── .env.example
-│   ├── gamememory/
-│   │   ├── settings.py
-│   │   └── urls.py
-│   ├── core/
-│   │   ├── views.py
-│   │   ├── urls.py
-│   │   └── tests.py
-│   └── games/
-│       ├── models.py
-│       ├── serializers.py
-│       ├── views.py
-│       ├── urls.py
-│       ├── tests.py
-│       └── services/
-│           ├── rawg.py
-│           └── steamgriddb.py
-│
-├── frontend/
-│   ├── package.json
-│   ├── vite.config.js
-│   └── src/
-│       ├── App.vue
-│       ├── main.js
-│       ├── api/
-│       ├── components/
-│       ├── router/
-│       ├── views/
-│       └── assets/
-│
-├── README.md
-└── .gitignore
+鈹溾攢鈹€ backend/
+鈹?  鈹溾攢鈹€ manage.py
+鈹?  鈹溾攢鈹€ requirements.txt
+鈹?  鈹溾攢鈹€ .env.example
+鈹?  鈹溾攢鈹€ gamememory/
+鈹?  鈹?  鈹溾攢鈹€ settings.py
+鈹?  鈹?  鈹斺攢鈹€ urls.py
+鈹?  鈹溾攢鈹€ core/
+鈹?  鈹?  鈹溾攢鈹€ views.py
+鈹?  鈹?  鈹溾攢鈹€ urls.py
+鈹?  鈹?  鈹斺攢鈹€ tests.py
+鈹?  鈹斺攢鈹€ games/
+鈹?      鈹溾攢鈹€ models.py
+鈹?      鈹溾攢鈹€ serializers.py
+鈹?      鈹溾攢鈹€ views.py
+鈹?      鈹溾攢鈹€ urls.py
+鈹?      鈹溾攢鈹€ tests.py
+鈹?      鈹斺攢鈹€ services/
+鈹?          鈹溾攢鈹€ rawg.py
+鈹?          鈹斺攢鈹€ steamgriddb.py
+鈹?鈹溾攢鈹€ frontend/
+鈹?  鈹溾攢鈹€ package.json
+鈹?  鈹溾攢鈹€ vite.config.js
+鈹?  鈹斺攢鈹€ src/
+鈹?      鈹溾攢鈹€ App.vue
+鈹?      鈹溾攢鈹€ main.js
+鈹?      鈹溾攢鈹€ api/
+鈹?      鈹溾攢鈹€ components/
+鈹?      鈹溾攢鈹€ router/
+鈹?      鈹溾攢鈹€ views/
+鈹?      鈹斺攢鈹€ assets/
+鈹?鈹溾攢鈹€ README.md
+鈹斺攢鈹€ .gitignore
 ```
 
 ---
 
-## Environment Variables / 环境变量
+## Environment Variables / 鐜鍙橀噺
 
 Create `backend/.env` from `backend/.env.example`:
 
@@ -196,11 +165,10 @@ STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
 
 `backend/.env` is ignored by Git. Do not commit real API keys.
 
-`backend/.env` 已被 `.gitignore` 排除，不要把真实 API key 提交到 GitHub。
-
+`backend/.env` 宸茶 `.gitignore` 鎺掗櫎锛屼笉瑕佹妸鐪熷疄 API key 鎻愪氦鍒?GitHub銆?
 ---
 
-## Run Locally / 本地运行
+## Run Locally / 鏈湴杩愯
 
 ### 1. Backend
 
@@ -241,7 +209,7 @@ Frontend URL:
 http://127.0.0.1:5173
 ```
 
-### Static Demo Build / 静态 Demo 构建
+### Static Demo Build / 闈欐€?Demo 鏋勫缓
 
 ```powershell
 cd frontend
@@ -252,7 +220,7 @@ npm run build:pages
 
 ---
 
-## Production Deployment / 生产部署
+## Production Deployment / 鐢熶骇閮ㄧ讲
 
 Recommended deployment split:
 
@@ -263,21 +231,18 @@ Render PostgreSQL  Production database
 RAWG / SteamGridDB External game data and artwork APIs
 ```
 
-推荐部署结构：
-
+鎺ㄨ崘閮ㄧ讲缁撴瀯锛?
 ```text
-Vercel             Vue 3 + Vite 前端
-Render             Django REST API 后端
-Render PostgreSQL  线上数据库
-RAWG / SteamGridDB 外部游戏资料与素材 API
+Vercel             Vue 3 + Vite 鍓嶇
+Render             Django REST API 鍚庣
+Render PostgreSQL  绾夸笂鏁版嵁搴?RAWG / SteamGridDB 澶栭儴娓告垙璧勬枡涓庣礌鏉?API
 ```
 
-### 1. Deploy Backend on Render / 部署 Render 后端
+### 1. Deploy Backend on Render / 閮ㄧ讲 Render 鍚庣
 
 This repository includes `render.yaml`, so Render can create the backend web service and PostgreSQL database from a Blueprint.
 
-本项目已包含 `render.yaml`，可以在 Render 里通过 Blueprint 自动创建后端服务和 PostgreSQL 数据库。
-
+鏈」鐩凡鍖呭惈 `render.yaml`锛屽彲浠ュ湪 Render 閲岄€氳繃 Blueprint 鑷姩鍒涘缓鍚庣鏈嶅姟鍜?PostgreSQL 鏁版嵁搴撱€?
 Steps:
 
 1. Push the repository to GitHub.
@@ -287,134 +252,99 @@ Steps:
 5. Fill the secret environment variables:
 
 ```text
+## Production Deployment / 生产部署
+
+### Option A: Vercel + Supabase / 方案 A：Vercel + Supabase
+
+```text
+Vercel              Vue 3 + Vite frontend
+Vercel Functions    Serverless API
+Supabase            PostgreSQL database
+RAWG / SteamGridDB  External game data and artwork APIs
+```
+
+This is the recommended no-credit-card deployment path.
+
+这是推荐的免绑卡真实线上部署方案。
+
+#### 1. Create Supabase Project / 创建 Supabase 项目
+
+1. Create a Supabase project.
+2. Open **SQL Editor**.
+3. Run the SQL in:
+
+```text
+supabase/schema.sql
+```
+
+4. Open **Project Settings** -> **API** and copy:
+
+```text
+Project URL
+service_role key
+```
+
+The service role key must only be stored in Vercel environment variables.
+
+`service_role key` 只能放在 Vercel 环境变量中，不能放进前端代码。
+
+#### 2. Deploy to Vercel / 部署到 Vercel
+
+Import this GitHub repository into Vercel using the repository root.
+
+导入 GitHub 仓库时，项目根目录使用仓库根目录，不要只选 `frontend`。
+
+Vercel settings:
+
+```text
+Framework Preset: Vite
+Build Command: npm run build
+Output Directory: frontend/dist
+```
+
+Add environment variables:
+
+```text
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 RAWG_API_KEY=your-rawg-api-key
 STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
 ```
 
-Render will generate `DJANGO_SECRET_KEY` and connect `DATABASE_URL` from PostgreSQL automatically.
+The frontend will call same-origin `/api` by default in production, so `VITE_API_BASE_URL` is not required on Vercel.
 
-Render 会自动生成 `DJANGO_SECRET_KEY`，并从 PostgreSQL 服务注入 `DATABASE_URL`。
+生产环境中，前端默认请求同域 `/api`，所以 Vercel 上通常不需要设置 `VITE_API_BASE_URL`。
 
-After deploy, your backend URL will look like:
-
-```text
-https://gamememory-api.onrender.com
-```
-
-Health check:
-
-```text
-https://gamememory-api.onrender.com/api/health/
-```
-
-### 2. Deploy Frontend on Vercel / 部署 Vercel 前端
-
-In Vercel:
-
-1. Import this GitHub repository.
-2. Set the project root directory to:
-
-```text
-frontend
-```
-
-3. Use the default Vite settings:
-
-```text
-Build Command: npm run build
-Output Directory: dist
-```
-
-4. Add an environment variable:
-
-```text
-VITE_API_BASE_URL=https://your-render-backend.onrender.com/api
-```
-
-Replace `your-render-backend` with your actual Render service domain.
-
-把 `your-render-backend` 替换成你自己的 Render 后端域名。
-
-### 3. Connect Frontend and Backend / 连接前后端
-
-After Vercel deploys, copy the Vercel app URL, for example:
-
-```text
-https://gamememory.vercel.app
-```
-
-Then update these Render environment variables:
-
-```text
-DJANGO_ALLOWED_HOSTS=your-render-backend.onrender.com
-CORS_ALLOWED_ORIGINS=https://gamememory.vercel.app
-CSRF_TRUSTED_ORIGINS=https://gamememory.vercel.app
-```
-
-Restart the Render backend after changing environment variables.
-
-修改环境变量后，重启 Render 后端服务。
-
-### 4. Notes / 注意事项
-
-- Real API keys belong only in Render environment variables.
-- Vercel should only receive `VITE_API_BASE_URL`.
-- PostgreSQL is used only when `DATABASE_URL` exists.
-- Local development still falls back to SQLite.
-- The GitHub Pages demo remains a static preview and does not use the production backend.
-
-- 真实 API key 只放在 Render 环境变量里。
-- Vercel 前端只需要 `VITE_API_BASE_URL`。
-- 只有存在 `DATABASE_URL` 时，Django 才会使用 PostgreSQL。
-- 本地开发仍然默认使用 SQLite。
-- GitHub Pages 仍然只是静态预览，不连接生产后端。
-
----
-
-## Core API / 核心接口
-
-```text
-GET    /api/health/                 Backend health check
-
-GET    /api/games/                  List local games
-POST   /api/games/                  Create a local game record
-GET    /api/games/?status=playing   Filter local games by status
-GET    /api/games/{id}/             Read one local game
-PATCH  /api/games/{id}/             Update personal review fields
-DELETE /api/games/{id}/             Delete one local game
-
-GET    /api/games/search/?q=name    Search RAWG through the backend
-GET    /api/games/trending/         Recent high-interest RAWG games
-POST   /api/games/import_rawg/      Import one RAWG game by rawg_id
-GET    /api/games/{id}/media/       RAWG screenshots, trailers, stores
-GET    /api/games/{id}/artwork/     SteamGridDB poster, hero, logo
-
-GET    /api/stats/                  Read archive statistics
-```
-
----
-
-## Pages / 页面
-
-| Page | Path | Description |
-|---|---|---|
-| Library / 游戏库 | `/` | Imported games with status filtering |
-| Search / 搜索导入 | `/search` | Search RAWG and browse recent popular games |
-| Detail / 游戏详情 | `/games/:id` | Official metadata, visual media, and personal review |
-| Stats / 统计 | `/stats` | Archive summary and score/tag statistics |
-
----
-
-## Validation / 验证
-
-Backend:
+#### 3. Local Vercel API Development / 本地调试 Vercel API
 
 ```powershell
-cd backend
-.\.venv\Scripts\python manage.py test
+npm install
+npm run dev
 ```
 
-Frontend:
+This runs `vercel dev` from the repository root.
+
+---
+
+### Option B: Vercel + Render + PostgreSQL / 方案 B：Vercel + Render + PostgreSQL
+
+This option keeps the Django backend online, but Render may require card verification.
+
+这个方案会保留线上 Django 后端，但 Render 可能要求绑定信用卡。
+
+```text
+Vercel             Vue 3 + Vite frontend
+Render             Django REST API backend
+Render PostgreSQL  Production database
+RAWG / SteamGridDB External game data and artwork APIs
+```
+
+This repository includes `render.yaml`, so Render can create the backend web service and PostgreSQL database from a Blueprint.
+
+本项目已包含 `render.yaml`，可以在 Render 里通过 Blueprint 自动创建后端服务和 PostgreSQL 数据库。
+
+---
+
 
 ```powershell
 cd frontend
@@ -428,7 +358,7 @@ Current validation status:
 
 ---
 
-## Security Notes / 安全说明
+## Security Notes / 瀹夊叏璇存槑
 
 - RAWG and SteamGridDB API keys are read only by Django.
 - The frontend never receives or stores API keys.
@@ -436,15 +366,10 @@ Current validation status:
 - Local database files are ignored by Git.
 - Virtual environments, build output, screenshots, and local IDE files are ignored.
 
-- RAWG 与 SteamGridDB 的 API key 只由 Django 后端读取。
-- 前端不会保存或暴露 API key。
-- 导入后的游戏资料会缓存在 SQLite。
-- 本地数据库文件不会进入 Git。
-- 虚拟环境、构建产物、截图和本地 IDE 文件都已忽略。
-
+- RAWG 涓?SteamGridDB 鐨?API key 鍙敱 Django 鍚庣璇诲彇銆?- 鍓嶇涓嶄細淇濆瓨鎴栨毚闇?API key銆?- 瀵煎叆鍚庣殑娓告垙璧勬枡浼氱紦瀛樺湪 SQLite銆?- 鏈湴鏁版嵁搴撴枃浠朵笉浼氳繘鍏?Git銆?- 铏氭嫙鐜銆佹瀯寤轰骇鐗┿€佹埅鍥惧拰鏈湴 IDE 鏂囦欢閮藉凡蹇界暐銆?
 ---
 
-## Roadmap / 后续计划
+## Roadmap / 鍚庣画璁″垝
 
 - [x] Django REST backend
 - [x] Vue 3 + Vite frontend
@@ -464,32 +389,25 @@ Current validation status:
 
 ---
 
-## Who Is This For / 适合人群
+## Who Is This For / 閫傚悎浜虹兢
 
 - Players who want a private game diary.
 - People who like rating and tagging game experiences.
 - Users who want to keep official game metadata and personal notes together.
 - Learners who want a full-stack Vue + Django reference project.
 
-- 想建立个人游戏日记的玩家。
-- 喜欢给游戏评分、打标签、写体验的人。
-- 想把官方资料和个人评价放在一起管理的用户。
-- 想参考 Vue + Django 全栈项目结构的学习者。
-
+- 鎯冲缓绔嬩釜浜烘父鎴忔棩璁扮殑鐜╁銆?- 鍠滄缁欐父鎴忚瘎鍒嗐€佹墦鏍囩銆佸啓浣撻獙鐨勪汉銆?- 鎯虫妸瀹樻柟璧勬枡鍜屼釜浜鸿瘎浠锋斁鍦ㄤ竴璧风鐞嗙殑鐢ㄦ埛銆?- 鎯冲弬鑰?Vue + Django 鍏ㄦ爤椤圭洰缁撴瀯鐨勫涔犺€呫€?
 ---
 
-## Author / 作者
-
-**Haoran Fei / 费浩然**
+## Author / 浣滆€?
+**Haoran Fei / 璐规旦鐒?*
 
 Built as a personal full-stack game archive project.
 
-这是一个用于个人游戏记录与全栈开发练习的项目。
-
+杩欐槸涓€涓敤浜庝釜浜烘父鎴忚褰曚笌鍏ㄦ爤寮€鍙戠粌涔犵殑椤圭洰銆?
 ---
 
-## License / 开源许可
-
+## License / 寮€婧愯鍙?
 MIT License planned.
 
 This project is shared for learning, demonstration, and personal archive use.

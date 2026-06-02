@@ -1,0 +1,15 @@
+{
+  "name": "gamememory",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.87.1"
+  },
+  "devDependencies": {
+    "vercel": "^54.7.1"
+  }
+}
