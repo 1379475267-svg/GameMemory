@@ -252,6 +252,125 @@ npm run build:pages
 
 ---
 
+## Production Deployment / 生产部署
+
+Recommended deployment split:
+
+```text
+Vercel             Vue 3 + Vite frontend
+Render             Django REST API backend
+Render PostgreSQL  Production database
+RAWG / SteamGridDB External game data and artwork APIs
+```
+
+推荐部署结构：
+
+```text
+Vercel             Vue 3 + Vite 前端
+Render             Django REST API 后端
+Render PostgreSQL  线上数据库
+RAWG / SteamGridDB 外部游戏资料与素材 API
+```
+
+### 1. Deploy Backend on Render / 部署 Render 后端
+
+This repository includes `render.yaml`, so Render can create the backend web service and PostgreSQL database from a Blueprint.
+
+本项目已包含 `render.yaml`，可以在 Render 里通过 Blueprint 自动创建后端服务和 PostgreSQL 数据库。
+
+Steps:
+
+1. Push the repository to GitHub.
+2. Open Render and choose **New +** -> **Blueprint**.
+3. Select this repository.
+4. Render will detect `render.yaml`.
+5. Fill the secret environment variables:
+
+```text
+RAWG_API_KEY=your-rawg-api-key
+STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
+```
+
+Render will generate `DJANGO_SECRET_KEY` and connect `DATABASE_URL` from PostgreSQL automatically.
+
+Render 会自动生成 `DJANGO_SECRET_KEY`，并从 PostgreSQL 服务注入 `DATABASE_URL`。
+
+After deploy, your backend URL will look like:
+
+```text
+https://gamememory-api.onrender.com
+```
+
+Health check:
+
+```text
+https://gamememory-api.onrender.com/api/health/
+```
+
+### 2. Deploy Frontend on Vercel / 部署 Vercel 前端
+
+In Vercel:
+
+1. Import this GitHub repository.
+2. Set the project root directory to:
+
+```text
+frontend
+```
+
+3. Use the default Vite settings:
+
+```text
+Build Command: npm run build
+Output Directory: dist
+```
+
+4. Add an environment variable:
+
+```text
+VITE_API_BASE_URL=https://your-render-backend.onrender.com/api
+```
+
+Replace `your-render-backend` with your actual Render service domain.
+
+把 `your-render-backend` 替换成你自己的 Render 后端域名。
+
+### 3. Connect Frontend and Backend / 连接前后端
+
+After Vercel deploys, copy the Vercel app URL, for example:
+
+```text
+https://gamememory.vercel.app
+```
+
+Then update these Render environment variables:
+
+```text
+DJANGO_ALLOWED_HOSTS=your-render-backend.onrender.com
+CORS_ALLOWED_ORIGINS=https://gamememory.vercel.app
+CSRF_TRUSTED_ORIGINS=https://gamememory.vercel.app
+```
+
+Restart the Render backend after changing environment variables.
+
+修改环境变量后，重启 Render 后端服务。
+
+### 4. Notes / 注意事项
+
+- Real API keys belong only in Render environment variables.
+- Vercel should only receive `VITE_API_BASE_URL`.
+- PostgreSQL is used only when `DATABASE_URL` exists.
+- Local development still falls back to SQLite.
+- The GitHub Pages demo remains a static preview and does not use the production backend.
+
+- 真实 API key 只放在 Render 环境变量里。
+- Vercel 前端只需要 `VITE_API_BASE_URL`。
+- 只有存在 `DATABASE_URL` 时，Django 才会使用 PostgreSQL。
+- 本地开发仍然默认使用 SQLite。
+- GitHub Pages 仍然只是静态预览，不连接生产后端。
+
+---
+
 ## Core API / 核心接口
 
 ```text

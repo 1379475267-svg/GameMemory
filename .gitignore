@@ -4,6 +4,7 @@ __pycache__/
 backend/.venv/
 backend/db.sqlite3
 backend/.env
+backend/staticfiles/
 
 .DS_Store
 .vscode/
