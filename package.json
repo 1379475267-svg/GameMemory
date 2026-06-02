@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cd frontend && npm run build",
+    "build": "npm install --prefix frontend && npm run build --prefix frontend",
     "dev": "vercel dev"
   },
   "dependencies": {
