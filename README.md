@@ -29,6 +29,24 @@ The app also enriches detail pages with RAWG screenshots and SteamGridDB artwork
 
 ---
 
+## Online Demo / 在线预览
+
+GitHub Pages demo:
+
+```text
+https://1379475267-svg.github.io/GameMemory/
+```
+
+The online demo is a static Vue build with built-in sample data. It is designed to preview the interface, page flow, visual style, animations, detail pages, search page, and statistics page.
+
+Because GitHub Pages cannot run the Django backend, the online demo does not call RAWG or SteamGridDB directly and does not use real API keys. To use real search, import, caching, and local database features, run the backend locally.
+
+在线预览是一个带示例数据的静态 Vue Demo，用来展示界面、页面流程、视觉风格、动效、详情页、搜索页和统计页。
+
+由于 GitHub Pages 不能运行 Django 后端，在线 Demo 不会直接调用 RAWG 或 SteamGridDB，也不会使用真实 API key。真实搜索、导入、本地缓存和数据库功能需要在本地启动后端。
+
+---
+
 ## Core Features / 核心功能
 
 ### Game Discovery / 游戏发现
@@ -221,6 +239,15 @@ Frontend URL:
 
 ```text
 http://127.0.0.1:5173
+```
+
+### Static Demo Build / 静态 Demo 构建
+
+```powershell
+cd frontend
+$env:VITE_DEMO_MODE='true'
+$env:VITE_BASE_PATH='/GameMemory/'
+npm run build:pages
 ```
 
 ---

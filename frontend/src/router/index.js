@@ -5,7 +5,7 @@ import GameDetailView from '../views/GameDetailView.vue'
 import StatsView from '../views/StatsView.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', name: 'library', component: LibraryView },
     { path: '/search', name: 'search', component: SearchView },
