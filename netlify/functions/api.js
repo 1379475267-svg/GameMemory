@@ -8,6 +8,7 @@ import {
   normalizeGame,
   toSupabasePatch,
 } from '../../api/_utils.js'
+import { createGameComment, listGameComments } from '../lib/comments.js'
 
 function json(statusCode, body) {
   return {
@@ -81,6 +82,18 @@ export async function handler(event) {
 
     if (parts[0] === 'games' && parts[1] === 'trending') {
       return json(200, await fetchRawgTrending())
+    }
+
+    if (parts[0] === 'comments') {
+      if (method === 'GET') {
+        return json(200, await listGameComments(event.queryStringParameters?.gameId))
+      }
+
+      if (method === 'POST') {
+        return json(201, await createGameComment(parseJsonBody(event)))
+      }
+
+      return json(405, { detail: 'Method not allowed.' })
     }
 
     if (parts[0] === 'games' && parts[1] === 'import_rawg') {
@@ -276,6 +289,10 @@ export async function handler(event) {
 
     return json(404, { detail: 'API route not found.' })
   } catch (error) {
+    if (error.statusCode) {
+      return json(error.statusCode, { detail: error.message || 'Request failed.' })
+    }
+
     const isImportOrExternal =
       parts[0] === 'games' && ['search', 'trending', 'import_rawg'].includes(parts[1]) || parts[2] === 'media' || parts[2] === 'artwork'
     return json(isImportOrExternal ? 502 : 500, { detail: error.message || 'Request failed.' })

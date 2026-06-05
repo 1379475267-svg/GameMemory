@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { deleteGame, fetchGame, fetchGameArtwork, fetchGameMedia, updateGame } from '../api/games'
+import GameComments from '../components/GameComments.vue'
 import RatingEditor from '../components/RatingEditor.vue'
 import TagEditor from '../components/TagEditor.vue'
 import { editableStatusOptions, scoreFields, statusLabel } from '../constants'
@@ -278,5 +279,7 @@ onMounted(loadGame)
         <p v-if="message" class="notice success">{{ message }}</p>
       </form>
     </section>
+
+    <GameComments :game-id="game.id" :rawg-id="game.rawg_id" />
   </article>
 </template>
