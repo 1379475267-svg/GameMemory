@@ -8,7 +8,7 @@ import {
   normalizeGame,
   toSupabasePatch,
 } from '../../api/_utils.js'
-import { createGameComment, listGameComments } from '../lib/comments.js'
+import { createGameComment, listGameComments, uploadCommentImage } from '../lib/comments.js'
 
 function json(statusCode, body) {
   return {
@@ -85,6 +85,11 @@ export async function handler(event) {
     }
 
     if (parts[0] === 'comments') {
+      if (parts[1] === 'upload-image') {
+        if (method !== 'POST') return json(405, { detail: 'Method not allowed.' })
+        return json(201, await uploadCommentImage(parseJsonBody(event)))
+      }
+
       if (method === 'GET') {
         return json(200, await listGameComments(event.queryStringParameters?.gameId))
       }

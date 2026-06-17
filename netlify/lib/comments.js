@@ -1,6 +1,14 @@
 import { getSupabaseClient } from '../../api/_utils.js'
+import { randomUUID } from 'node:crypto'
 
-const COMMENT_FIELDS = 'id, game_id, rawg_id, nickname, content, rating, status, created_at'
+const COMMENT_FIELDS = 'id, game_id, rawg_id, nickname, content, image_url, rating, status, created_at'
+const COMMENT_IMAGE_BUCKET = 'comment-images'
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = new Map([
+  ['image/jpeg', 'jpg'],
+  ['image/png', 'png'],
+  ['image/webp', 'webp'],
+])
 
 function fail(statusCode, message) {
   const error = new Error(message)
@@ -19,6 +27,7 @@ function normalizeComment(row) {
     rawg_id: row.rawg_id,
     nickname: row.nickname,
     content: row.content,
+    image_url: row.image_url || '',
     rating: row.rating,
     status: row.status,
     created_at: row.created_at,
@@ -48,14 +57,61 @@ function normalizeIncomingComment(payload) {
     throw fail(400, 'rating must be an integer from 1 to 10.')
   }
 
+  const imageUrl = String(payload.image_url || '').trim()
+  const supabaseUrl = String(process.env.SUPABASE_URL || '').replace(/\/$/, '')
+  if (imageUrl && !imageUrl.startsWith(`${supabaseUrl}/storage/v1/object/public/${COMMENT_IMAGE_BUCKET}/`)) {
+    throw fail(400, 'image_url is invalid.')
+  }
+
   return {
     game_id: gameId,
     rawg_id: rawgId,
     nickname,
     content,
+    image_url: imageUrl,
     rating,
     status: 'approved',
   }
+}
+
+function parseImagePayload(payload) {
+  const gameId = String(payload.game_id || '').trim()
+  const fileName = String(payload.file_name || 'memory-wall-image').trim()
+  const contentType = String(payload.content_type || '').trim().toLowerCase()
+  const data = String(payload.data || '').trim()
+
+  if (!gameId) throw fail(400, 'game_id is required.')
+  if (!ALLOWED_IMAGE_TYPES.has(contentType)) {
+    throw fail(400, 'Only JPG, PNG, and WebP images are supported.')
+  }
+  if (!data) throw fail(400, 'Image data is required.')
+
+  const base64 = data.includes(',') ? data.split(',').pop() : data
+  const buffer = Buffer.from(base64, 'base64')
+  if (!buffer.length) throw fail(400, 'Image data is invalid.')
+  if (buffer.length > MAX_IMAGE_BYTES) throw fail(400, 'Image must be 2MB or smaller.')
+
+  return {
+    gameId,
+    fileName,
+    contentType,
+    buffer,
+    extension: ALLOWED_IMAGE_TYPES.get(contentType),
+  }
+}
+
+async function ensureCommentImageBucket(supabase) {
+  const { data, error } = await supabase.storage.listBuckets()
+  if (error) throw error
+
+  if (data.some((bucket) => bucket.name === COMMENT_IMAGE_BUCKET)) return
+
+  const created = await supabase.storage.createBucket(COMMENT_IMAGE_BUCKET, {
+    public: true,
+    allowedMimeTypes: [...ALLOWED_IMAGE_TYPES.keys()],
+    fileSizeLimit: MAX_IMAGE_BYTES,
+  })
+  if (created.error) throw created.error
 }
 
 export async function listGameComments(gameId) {
@@ -81,4 +137,25 @@ export async function createGameComment(payload) {
 
   if (error) throw error
   return normalizeComment(data)
+}
+
+export async function uploadCommentImage(payload) {
+  const image = parseImagePayload(payload || {})
+  const supabase = getSupabaseClient()
+  await ensureCommentImageBucket(supabase)
+
+  const safeGameId = image.gameId.replace(/[^a-zA-Z0-9_-]/g, '-')
+  const path = `${safeGameId}/${Date.now()}-${randomUUID()}.${image.extension}`
+  const { error } = await supabase.storage.from(COMMENT_IMAGE_BUCKET).upload(path, image.buffer, {
+    contentType: image.contentType,
+    upsert: false,
+  })
+  if (error) throw error
+
+  const { data } = supabase.storage.from(COMMENT_IMAGE_BUCKET).getPublicUrl(path)
+  return {
+    image_url: data.publicUrl,
+    image_path: path,
+    file_name: image.fileName,
+  }
 }

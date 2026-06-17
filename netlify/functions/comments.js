@@ -1,4 +1,4 @@
-import { createGameComment, listGameComments } from '../lib/comments.js'
+import { createGameComment, listGameComments, uploadCommentImage } from '../lib/comments.js'
 
 function json(statusCode, body) {
   return {
@@ -24,6 +24,11 @@ export async function handler(event) {
     if (event.httpMethod === 'GET') {
       const comments = await listGameComments(event.queryStringParameters?.gameId)
       return json(200, comments)
+    }
+
+    if (event.httpMethod === 'POST' && event.path?.endsWith('/upload-image')) {
+      const image = await uploadCommentImage(parseJsonBody(event))
+      return json(201, image)
     }
 
     if (event.httpMethod === 'POST') {

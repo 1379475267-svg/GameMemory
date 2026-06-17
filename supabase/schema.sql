@@ -56,6 +56,7 @@ create table if not exists public.game_comments (
   rawg_id integer,
   nickname text not null,
   content text not null,
+  image_url text default '',
   rating integer,
   status text not null default 'approved',
   created_at timestamptz not null default now(),
@@ -64,6 +65,8 @@ create table if not exists public.game_comments (
   constraint game_comments_rating_range check (rating is null or rating between 1 and 10),
   constraint game_comments_status_allowed check (status in ('approved', 'pending', 'hidden'))
 );
+
+alter table public.game_comments add column if not exists image_url text default '';
 
 create index if not exists game_comments_game_id_idx on public.game_comments (game_id);
 create index if not exists game_comments_created_at_idx on public.game_comments (created_at desc);

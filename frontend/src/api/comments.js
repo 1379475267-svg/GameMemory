@@ -22,3 +22,18 @@ export function createGameComment(payload) {
     body: JSON.stringify(payload),
   })
 }
+
+export function uploadCommentImage(payload) {
+  if (DEMO_MODE) {
+    return Promise.resolve({
+      image_url: payload.data,
+      image_path: '',
+      file_name: payload.file_name,
+    })
+  }
+
+  return apiRequest('/comments/upload-image/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}

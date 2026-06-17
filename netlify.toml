@@ -17,6 +17,11 @@
   status = 200
 
 [[redirects]]
+  from = "/comments/upload-image"
+  to = "/.netlify/functions/comments/upload-image"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
