@@ -8,7 +8,7 @@ const games = ref([])
 const selectedStatus = ref('')
 const searchText = ref('')
 const selectedTag = ref('')
-const sortBy = ref('updated')
+const sortBy = ref('steam-playtime')
 const loading = ref(false)
 const error = ref('')
 
@@ -75,6 +75,9 @@ const filteredGames = computed(() => {
   })
 
   return [...items].sort((a, b) => {
+    if (sortBy.value === 'steam-playtime') {
+      return (b.steam_playtime_forever || 0) - (a.steam_playtime_forever || 0) || a.name.localeCompare(b.name, 'zh-CN')
+    }
     if (sortBy.value === 'score') return (b.overall_score || 0) - (a.overall_score || 0) || a.name.localeCompare(b.name)
     if (sortBy.value === 'released') return String(b.released || '').localeCompare(String(a.released || ''))
     if (sortBy.value === 'name') return a.name.localeCompare(b.name, 'zh-CN')
@@ -120,6 +123,7 @@ watch(selectedStatus, loadGames)
       <option v-for="tag in allTags" :key="tag" :value="tag">{{ tag }}</option>
     </select>
     <select v-model="sortBy">
+      <option value="steam-playtime">Steam 时长最高</option>
       <option value="updated">最近更新</option>
       <option value="score">评分最高</option>
       <option value="released">发售时间</option>
