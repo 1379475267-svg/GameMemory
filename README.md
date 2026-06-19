@@ -1,8 +1,8 @@
 # GameMemory
 
-> A personal full-stack game archive for searching, importing, rating, tagging, reviewing, and sharing game memories.
->
-> 一个个人游戏档案馆：搜索游戏、导入资料、记录状态、评分打标、写主观评价，也可以在游戏详情页留下公开记忆留言。
+**English** | [中文](README.zh.md)
+
+> A personal full-stack game archive for searching, importing, rating, tagging, reviewing, sharing memories, and exporting your collection.
 
 ![Vue 3](https://img.shields.io/badge/Vue%203-Frontend-42b883)
 ![Vite](https://img.shields.io/badge/Vite-Build-646cff)
@@ -14,7 +14,7 @@
 
 ## Overview
 
-**GameMemory** is a full-stack personal game archive. It lets you search games through RAWG, import official metadata, enrich detail pages with SteamGridDB artwork, record your own play status and ratings, and browse statistics for your game library.
+**GameMemory** is a full-stack personal game archive. It lets you search games through RAWG, import official metadata, enrich detail pages with SteamGridDB artwork, record your play status and ratings, write personal reviews, browse library statistics, and leave public Memory Wall comments on game detail pages.
 
 The current production version uses:
 
@@ -29,23 +29,9 @@ The repository also keeps the earlier **Django + Django REST Framework + SQLite*
 
 ## Live Demo
 
-Production site:
-
-```text
-https://1gamememory1.netlify.app
-```
-
-API health check:
-
-```text
-https://1gamememory1.netlify.app/api/health
-```
-
-Static UI demo:
-
-```text
-https://1379475267-svg.github.io/GameMemory/
-```
+- Production site: [https://1gamememory1.netlify.app](https://1gamememory1.netlify.app)
+- API health check: [https://1gamememory1.netlify.app/api/health](https://1gamememory1.netlify.app/api/health)
+- Static UI demo: [https://1379475267-svg.github.io/GameMemory/](https://1379475267-svg.github.io/GameMemory/)
 
 The Netlify version connects to the real serverless API and Supabase database. The GitHub Pages version is only a static interface preview.
 
@@ -71,19 +57,22 @@ The Netlify version connects to the real serverless API and Supabase database. T
 
 - Search games with RAWG API.
 - Show recent high-interest games on the search page.
-- Import games into the local archive stored in Supabase.
+- Import games into the archive stored in Supabase.
 - Browse games as dark archive-style cards.
-- Filter games by status: backlog, playing, completed, paused, dropped.
+- Filter games by status, search by keyword, filter by tags, and sort the library.
+- Export the current library view as JSON or CSV.
 - View official metadata, screenshots, stores, trailers, and SteamGridDB artwork.
+- Choose SteamGridDB poster, hero, and logo artwork for detail pages.
 - Edit play platform, overall score, graphics score, story score, gameplay score, immersion score, music score, tags, and review text.
 - Delete games from the archive.
 - View statistics: total games, completed count, average score, top tags, and highest-rated game.
 - Leave anonymous Memory Wall comments on each game detail page.
 - Attach one image to each Memory Wall comment, uploaded through the server-side API to Supabase Storage.
+- Use optional manual comment moderation with `COMMENT_MODERATION_MODE=manual`.
 
 ## Memory Wall
 
-Each game detail page includes a **Memory Wall / 游戏记忆墙** section.
+Each game detail page includes a **Memory Wall** section.
 
 Visitors can submit:
 
@@ -96,7 +85,8 @@ Image upload rules:
 
 - one image per comment
 - supported types: JPG, PNG, WebP
-- maximum size: 2 MB
+- frontend accepts images up to 5 MB and compresses them before upload
+- server-side upload limit is 2 MB
 - images are uploaded by Netlify Functions using server-side Supabase credentials
 - frontend code never receives the Supabase service role key
 
@@ -147,45 +137,27 @@ In production, the browser does not access Supabase tables directly. Database wr
 GameMemory/
 |-- api/                         # Vercel-style serverless API modules
 |-- backend/                     # Django + DRF local backend
-|   |-- core/
-|   |-- games/
-|   |-- gamememory/
-|   |-- manage.py
-|   `-- requirements.txt
-|-- docs/
-|   `-- screenshots/
+|-- docs/                        # Screenshots and docs assets
 |-- frontend/                    # Vue 3 + Vite frontend
-|   |-- src/
-|   |   |-- api/
-|   |   |-- components/
-|   |   |-- router/
-|   |   `-- views/
-|   |-- package.json
-|   `-- vite.config.js
-|-- netlify/
-|   |-- functions/
-|   |   |-- api.js              # Production API router
-|   |   `-- comments.js         # Direct comments function
-|   `-- lib/
-|       `-- comments.js          # Comment and image upload logic
-|-- supabase/
-|   `-- schema.sql               # Production database schema
+|-- netlify/                     # Production Netlify Functions
+|-- supabase/                    # Production database schema
 |-- netlify.toml
 |-- package.json
 |-- render.yaml
 |-- vercel.json
-`-- README.md
+|-- README.md
+`-- README.zh.md
 ```
 
 ## Production Deployment
 
 Recommended deployment:
 
-```text
-Netlify             Vue frontend and serverless API
-Supabase            PostgreSQL database and Storage
-RAWG / SteamGridDB  External game data and artwork APIs
-```
+| Service | Purpose |
+|---|---|
+| Netlify | Vue frontend and serverless API |
+| Supabase | PostgreSQL database and Storage |
+| RAWG / SteamGridDB | External game data and artwork APIs |
 
 ### 1. Supabase Setup
 
@@ -202,14 +174,6 @@ The schema creates:
 - required indexes
 - row level security policies
 - service role permissions
-
-If adding image comments to an existing database, make sure this migration has run:
-
-```sql
-alter table public.game_comments add column if not exists image_url text default '';
-```
-
-The image upload function will create the public Storage bucket `comment-images` on first upload if it does not already exist.
 
 Required Supabase values:
 
@@ -233,8 +197,6 @@ Publish directory:     frontend/dist
 Functions directory:   netlify/functions
 ```
 
-These are also configured in `netlify.toml`.
-
 Required Netlify environment variables:
 
 ```text
@@ -242,17 +204,14 @@ SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 RAWG_API_KEY=your-rawg-api-key
 STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
+COMMENT_MODERATION_MODE=manual
 ```
 
-After changing environment variables, trigger a new Netlify deploy.
+`COMMENT_MODERATION_MODE` is optional. Set it to `manual` if new Memory Wall comments should be inserted as `pending` instead of immediately visible.
 
 ### 3. Verify Production
 
-Open:
-
-```text
-https://your-netlify-site.netlify.app/api/health
-```
+Open [https://your-netlify-site.netlify.app/api/health](https://your-netlify-site.netlify.app/api/health).
 
 Expected shape:
 
@@ -272,9 +231,10 @@ Then test:
 2. Import it.
 3. Open the game detail page.
 4. Edit your review.
-5. Add a Memory Wall comment.
-6. Add a Memory Wall comment with an image.
-7. Refresh the page and confirm data persists.
+5. Choose artwork if available.
+6. Add a Memory Wall comment.
+7. Add a Memory Wall comment with an image.
+8. Refresh the page and confirm data persists.
 
 ## Local Development
 
@@ -286,17 +246,9 @@ npm install
 npm run dev
 ```
 
-Frontend URL:
+Frontend URL: [http://127.0.0.1:5173](http://127.0.0.1:5173)
 
-```text
-http://127.0.0.1:5173
-```
-
-In local Vite development, the frontend defaults to the Django API:
-
-```text
-http://127.0.0.1:8000/api
-```
+In local Vite development, the frontend defaults to the Django API at [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api).
 
 ### Django Backend
 
@@ -319,11 +271,7 @@ RAWG_API_KEY=your-rawg-api-key
 STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
 ```
 
-Backend health check:
-
-```text
-http://127.0.0.1:8000/api/health/
-```
+Backend health check: [http://127.0.0.1:8000/api/health/](http://127.0.0.1:8000/api/health/)
 
 ### Netlify-Style Build
 
@@ -352,6 +300,7 @@ GET    /api/games/trending
 POST   /api/games/import_rawg
 GET    /api/games/:id/media
 GET    /api/games/:id/artwork
+PATCH  /api/games/:id/artwork
 GET    /api/comments?gameId=1
 POST   /api/comments
 POST   /api/comments/upload-image
@@ -367,6 +316,7 @@ SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY
 RAWG_API_KEY
 STEAMGRIDDB_API_KEY
+COMMENT_MODERATION_MODE
 ```
 
 ### Local Django Backend
@@ -386,6 +336,7 @@ STEAMGRIDDB_API_KEY
 - `SUPABASE_SERVICE_ROLE_KEY` must only be used on the server side.
 - The frontend does not access Supabase tables directly.
 - Comment image uploads are validated by file type and size before being stored.
+- Memory Wall comments include basic rate limiting and a honeypot field.
 - If any secret key is exposed, rotate it immediately and update deployment environment variables.
 
 ## Troubleshooting
@@ -406,11 +357,7 @@ This is already configured in the root `package.json`.
 
 This is usually caused by an incorrect `SUPABASE_URL`.
 
-Correct format:
-
-```text
-https://your-project-id.supabase.co
-```
+Correct format: [https://your-project-id.supabase.co](https://your-project-id.supabase.co)
 
 Do not include `/rest/v1/`.
 
@@ -431,18 +378,14 @@ Check:
 - `image_url` exists on `public.game_comments`
 - Netlify has `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
 - the uploaded image is JPG, PNG, or WebP
-- the uploaded image is 2 MB or smaller
+- the uploaded image is 2 MB or smaller after compression
 - the `comment-images` Storage bucket exists, or the service role key has permission to create it
 
 ### Health check is true but games still fail
 
 `/api/health` only checks whether environment variables exist. It does not prove the Supabase URL and service role key are valid.
 
-Use this route to verify real database access:
-
-```text
-/api/games
-```
+Use [/api/games](https://1gamememory1.netlify.app/api/games) to verify real database access.
 
 ## Roadmap
 
@@ -458,11 +401,11 @@ Use this route to verify real database access:
 - [x] Statistics page
 - [x] Memory Wall comments
 - [x] Image attachments for Memory Wall comments
-- [ ] Better artwork selection controls
-- [ ] Tag search and advanced filters
-- [ ] Export archive data
-- [ ] Friendlier production error messages
-- [ ] Optional comment moderation workflow
+- [x] Better artwork selection controls
+- [x] Tag search and advanced filters
+- [x] Export archive data
+- [x] Friendlier production error messages
+- [x] Optional comment moderation workflow
 - [ ] User authentication and private archives
 
 ## Author
