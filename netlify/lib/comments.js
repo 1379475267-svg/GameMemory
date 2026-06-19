@@ -4,11 +4,14 @@ import { randomUUID } from 'node:crypto'
 const COMMENT_FIELDS = 'id, game_id, rawg_id, nickname, content, image_url, rating, status, created_at'
 const COMMENT_IMAGE_BUCKET = 'comment-images'
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024
+const COMMENT_WINDOW_MS = 10 * 60 * 1000
+const COMMENT_LIMIT = 5
 const ALLOWED_IMAGE_TYPES = new Map([
   ['image/jpeg', 'jpg'],
   ['image/png', 'png'],
   ['image/webp', 'webp'],
 ])
+const commentAttempts = new Map()
 
 function fail(statusCode, message) {
   const error = new Error(message)
@@ -35,6 +38,8 @@ function normalizeComment(row) {
 }
 
 function normalizeIncomingComment(payload) {
+  if (String(payload.website || '').trim()) throw fail(400, 'Comment could not be submitted.')
+
   const gameId = String(payload.game_id || '').trim()
   const nickname = String(payload.nickname || '').trim()
   const content = String(payload.content || '').trim()
@@ -63,6 +68,8 @@ function normalizeIncomingComment(payload) {
     throw fail(400, 'image_url is invalid.')
   }
 
+  const status = process.env.COMMENT_MODERATION_MODE === 'manual' ? 'pending' : 'approved'
+
   return {
     game_id: gameId,
     rawg_id: rawgId,
@@ -70,8 +77,21 @@ function normalizeIncomingComment(payload) {
     content,
     image_url: imageUrl,
     rating,
-    status: 'approved',
+    status,
   }
+}
+
+function checkCommentRateLimit(clientKey) {
+  if (!clientKey) return
+
+  const now = Date.now()
+  const recent = (commentAttempts.get(clientKey) || []).filter((time) => now - time < COMMENT_WINDOW_MS)
+  if (recent.length >= COMMENT_LIMIT) {
+    throw fail(429, '留言太频繁了，请稍后再试。')
+  }
+
+  recent.push(now)
+  commentAttempts.set(clientKey, recent)
 }
 
 function parseImagePayload(payload) {
@@ -130,7 +150,8 @@ export async function listGameComments(gameId) {
   return data.map(normalizeComment)
 }
 
-export async function createGameComment(payload) {
+export async function createGameComment(payload, context = {}) {
+  checkCommentRateLimit(`${context.clientIp || 'anonymous'}:${payload?.game_id || ''}`)
   const comment = normalizeIncomingComment(payload || {})
   const supabase = getSupabaseClient()
   const { data, error } = await supabase.from('game_comments').insert(comment).select(COMMENT_FIELDS).single()

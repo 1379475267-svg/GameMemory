@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { deleteGame, fetchGame, fetchGameArtwork, fetchGameMedia, updateGame } from '../api/games'
+import { deleteGame, fetchGame, fetchGameArtwork, fetchGameMedia, updateGame, updateGameArtwork } from '../api/games'
 import GameComments from '../components/GameComments.vue'
 import RatingEditor from '../components/RatingEditor.vue'
 import TagEditor from '../components/TagEditor.vue'
@@ -22,8 +22,10 @@ const form = ref(null)
 const loading = ref(false)
 const mediaLoading = ref(false)
 const saving = ref(false)
+const savingArtwork = ref(false)
 const error = ref('')
 const mediaError = ref('')
+const artworkMessage = ref('')
 const message = ref('')
 
 const heroImage = computed(() => {
@@ -81,7 +83,43 @@ async function loadArtwork() {
   } catch {
     artwork.value = {
       assets: game.value?.steamgrid_assets || {},
+      candidates: {},
     }
+  }
+}
+
+function artworkCandidates(type) {
+  const key = type === 'poster' ? 'posters' : `${type}s`
+  return artwork.value?.candidates?.[key] || []
+}
+
+function selectArtwork(type, asset) {
+  artwork.value = {
+    ...(artwork.value || {}),
+    assets: {
+      ...(artwork.value?.assets || {}),
+      [type]: asset,
+    },
+  }
+  artworkMessage.value = ''
+}
+
+async function saveArtwork() {
+  savingArtwork.value = true
+  artworkMessage.value = ''
+  const candidates = artwork.value?.candidates || {}
+  try {
+    const saved = await updateGameArtwork(props.id, artwork.value?.assets || {})
+    artwork.value = { ...saved, candidates }
+    game.value = {
+      ...game.value,
+      steamgrid_assets: artwork.value.assets || {},
+    }
+    artworkMessage.value = '素材选择已保存'
+  } catch (err) {
+    artworkMessage.value = err.message
+  } finally {
+    savingArtwork.value = false
   }
 }
 
@@ -180,6 +218,39 @@ onMounted(loadGame)
             <h2>档案封面</h2>
             <p class="muted-text">高质量社区素材会优先用于详情页视觉展示。</p>
           </div>
+        </div>
+
+        <div
+          v-if="artworkCandidates('poster').length || artworkCandidates('hero').length || artworkCandidates('logo').length"
+          class="panel artwork-panel"
+        >
+          <div class="section-title">
+            <div>
+              <h2>素材选择</h2>
+              <p>为详情页选择封面、横幅和 Logo。</p>
+            </div>
+            <button type="button" :disabled="savingArtwork" @click="saveArtwork">
+              {{ savingArtwork ? '保存中' : '保存素材' }}
+            </button>
+          </div>
+
+          <div class="artwork-groups">
+            <div v-for="type in ['poster', 'hero', 'logo']" :key="type" class="artwork-group">
+              <h3>{{ type === 'poster' ? '封面' : type === 'hero' ? '横幅' : 'Logo' }}</h3>
+              <div class="artwork-options">
+                <button
+                  v-for="asset in artworkCandidates(type)"
+                  :key="asset.id"
+                  type="button"
+                  :class="{ selected: artwork?.assets?.[type]?.id === asset.id }"
+                  @click="selectArtwork(type, asset)"
+                >
+                  <img :src="asset.thumb || asset.url" :alt="`${game.name} ${type}`" />
+                </button>
+              </div>
+            </div>
+          </div>
+          <p v-if="artworkMessage" class="notice success">{{ artworkMessage }}</p>
         </div>
 
         <div class="panel">

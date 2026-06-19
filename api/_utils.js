@@ -220,12 +220,16 @@ function normalizeSteamGridAsset(item) {
   }
 }
 
-async function firstSteamGridAsset(path, params = {}) {
+async function steamGridAssets(path, params = {}) {
   const data = await steamGridRequest(path, params)
-  const clean = (data.data || [])
+  return (data.data || [])
     .filter((item) => item.url && !item.nsfw && !item.humor)
     .map(normalizeSteamGridAsset)
-  return clean.find((item) => item.style === 'official') || clean[0] || null
+    .slice(0, 8)
+}
+
+function preferredSteamGridAsset(items) {
+  return items.find((item) => item.style === 'official') || items[0] || null
 }
 
 export async function fetchSteamGridArtwork(gameName) {
@@ -239,13 +243,23 @@ export async function fetchSteamGridArtwork(gameName) {
 
   const match = chooseSteamGridMatch(gameName, search.data)
   const steamgriddbId = match.id
+  const [posters, heroes, logos] = await Promise.all([
+    steamGridAssets(`/grids/game/${steamgriddbId}`, { dimensions: '600x900' }),
+    steamGridAssets(`/heroes/game/${steamgriddbId}`),
+    steamGridAssets(`/logos/game/${steamgriddbId}`),
+  ])
 
   return {
     steamgriddb_id: steamgriddbId,
     assets: {
-      poster: await firstSteamGridAsset(`/grids/game/${steamgriddbId}`, { dimensions: '600x900' }),
-      hero: await firstSteamGridAsset(`/heroes/game/${steamgriddbId}`),
-      logo: await firstSteamGridAsset(`/logos/game/${steamgriddbId}`),
+      poster: preferredSteamGridAsset(posters),
+      hero: preferredSteamGridAsset(heroes),
+      logo: preferredSteamGridAsset(logos),
+    },
+    candidates: {
+      posters,
+      heroes,
+      logos,
     },
   }
 }

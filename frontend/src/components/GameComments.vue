@@ -16,6 +16,7 @@ const props = defineProps({
 const comments = ref([])
 const loading = ref(false)
 const submitting = ref(false)
+const uploadStage = ref('')
 const error = ref('')
 const success = ref('')
 const imageFile = ref(null)
@@ -25,9 +26,10 @@ const form = reactive({
   nickname: '',
   rating: '',
   content: '',
+  website: '',
 })
 
-const maxImageSize = 2 * 1024 * 1024
+const maxImageSize = 5 * 1024 * 1024
 const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp']
 const commentCount = computed(() => comments.value.length)
 const canSubmit = computed(() => {
@@ -62,6 +64,7 @@ function resetForm() {
   form.nickname = ''
   form.rating = ''
   form.content = ''
+  form.website = ''
   removeImage()
 }
 
@@ -71,6 +74,41 @@ function fileToDataUrl(file) {
     reader.onload = () => resolve(reader.result)
     reader.onerror = () => reject(new Error('图片读取失败，请重新选择。'))
     reader.readAsDataURL(file)
+  })
+}
+
+function resizeImage(file) {
+  if (file.size <= 900 * 1024) return Promise.resolve(file)
+
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    const url = URL.createObjectURL(file)
+    image.onload = () => {
+      const maxSide = 1600
+      const scale = Math.min(1, maxSide / Math.max(image.width, image.height))
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(image.width * scale)
+      canvas.height = Math.round(image.height * scale)
+      const context = canvas.getContext('2d')
+      context.drawImage(image, 0, 0, canvas.width, canvas.height)
+      canvas.toBlob(
+        (blob) => {
+          URL.revokeObjectURL(url)
+          if (!blob) {
+            reject(new Error('图片压缩失败，请重新选择。'))
+            return
+          }
+          resolve(new File([blob], file.name, { type: file.type, lastModified: Date.now() }))
+        },
+        file.type,
+        0.82,
+      )
+    }
+    image.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error('图片读取失败，请重新选择。'))
+    }
+    image.src = url
   })
 }
 
@@ -91,7 +129,7 @@ function chooseImage(event) {
   }
 
   if (file.size > maxImageSize) {
-    error.value = '图片不能超过 2MB。'
+    error.value = '图片不能超过 5MB。'
     event.target.value = ''
     return
   }
@@ -132,20 +170,25 @@ async function submitComment() {
   }
 
   submitting.value = true
+  uploadStage.value = imageFile.value ? '正在处理图片...' : ''
   try {
     let imageUrl = ''
     if (imageFile.value) {
-      const data = await fileToDataUrl(imageFile.value)
+      const preparedImage = await resizeImage(imageFile.value)
+      uploadStage.value = '正在上传图片...'
+      const data = await fileToDataUrl(preparedImage)
       const uploaded = await uploadCommentImage({
         game_id: String(props.gameId),
-        file_name: imageFile.value.name,
-        content_type: imageFile.value.type,
+        file_name: preparedImage.name,
+        content_type: preparedImage.type,
         data,
       })
       imageUrl = uploaded.image_url
     }
 
-    await createGameComment({
+    uploadStage.value = '正在发布留言...'
+    const comment = await createGameComment({
+      website: form.website,
       game_id: String(props.gameId),
       rawg_id: props.rawgId || null,
       nickname,
@@ -154,12 +197,13 @@ async function submitComment() {
       rating: form.rating ? Number(form.rating) : null,
     })
     resetForm()
-    success.value = '留言已发布。'
+    success.value = comment.status === 'pending' ? '留言已提交，审核通过后会展示。' : '留言已发布。'
     await loadComments()
   } catch (err) {
     error.value = err.message
   } finally {
     submitting.value = false
+    uploadStage.value = ''
   }
 }
 
@@ -197,12 +241,13 @@ onMounted(loadComments)
         留言
         <textarea v-model="form.content" maxlength="300" rows="5" placeholder="留下这款游戏带给你的一个瞬间。" />
       </label>
+      <input v-model="form.website" class="hidden-field" type="text" tabindex="-1" autocomplete="off" />
 
       <div class="image-picker">
         <label class="image-input">
           记忆图片
           <input ref="fileInput" type="file" accept="image/png,image/jpeg,image/webp" @change="chooseImage" />
-          <span>可选，支持 JPG / PNG / WebP，最多 2MB</span>
+          <span>可选，支持 JPG / PNG / WebP，最多 5MB，发布时会自动压缩</span>
         </label>
 
         <div v-if="imagePreview" class="image-preview">
@@ -212,7 +257,7 @@ onMounted(loadComments)
       </div>
 
       <div class="comment-actions">
-        <span>{{ form.content.length }}/300</span>
+        <span>{{ uploadStage || `${form.content.length}/300` }}</span>
         <button type="submit" :disabled="!canSubmit">{{ submitting ? '发布中...' : '发布留言' }}</button>
       </div>
 
@@ -318,6 +363,14 @@ onMounted(loadComments)
   margin-top: 8px;
   color: #8090ad;
   font-size: 0.92rem;
+}
+
+.hidden-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 
 .image-preview {
