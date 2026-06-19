@@ -7,6 +7,12 @@ defineProps({
     required: true,
   },
 })
+
+function formatHours(minutes) {
+  if (!minutes) return ''
+  const hours = minutes / 60
+  return `${hours >= 10 ? Math.round(hours) : hours.toFixed(1)} 小时`
+}
 </script>
 
 <template>
@@ -19,6 +25,7 @@ defineProps({
     <div class="card-body">
       <h3>{{ game.name }}</h3>
       <p>{{ game.released || '未知发售日' }}</p>
+      <p v-if="game.steam_playtime_forever" class="steam-time">Steam {{ formatHours(game.steam_playtime_forever) }}</p>
       <div class="tag-row">
         <span v-for="genre in game.genres.slice(0, 3)" :key="genre">{{ genre }}</span>
       </div>

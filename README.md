@@ -25,6 +25,7 @@ The current production version uses:
 - **Netlify Functions** for the production API
 - **Supabase PostgreSQL** for game and comment data
 - **Supabase Storage** for Memory Wall images
+- **Steam Web API** for owned-library import and playtime data
 - **RAWG API** for game search, metadata, screenshots, and trailers
 - **SteamGridDB API** for posters, heroes, and logos
 
@@ -61,6 +62,8 @@ The Netlify version connects to the real serverless API and Supabase database. T
 - Search games with RAWG API.
 - Show recent high-interest games on the search page.
 - Import games into the archive stored in Supabase.
+- Import a public Steam library by SteamID64.
+- Store Steam AppID, total playtime, recent two-week playtime, and Steam store links.
 - Browse games as dark archive-style cards.
 - Filter games by status, search by keyword, filter by tags, and sort the library.
 - Export the current library view as JSON or CSV.
@@ -109,6 +112,7 @@ comment-images
 | Production Storage | Supabase Storage | Stores comment image uploads |
 | Local Backend | Django, Django REST Framework | Legacy/local backend for learning |
 | Local Database | SQLite | Used by the Django backend |
+| Steam Library | Steam Web API | Owned games and playtime import |
 | Game Data | RAWG API | Search, metadata, screenshots, trailers |
 | Artwork | SteamGridDB API | Posters, heroes, logos |
 
@@ -160,7 +164,7 @@ Recommended deployment:
 |---|---|
 | Netlify | Vue frontend and serverless API |
 | Supabase | PostgreSQL database and Storage |
-| RAWG / SteamGridDB | External game data and artwork APIs |
+| Steam / RAWG / SteamGridDB | External library data, game data, and artwork APIs |
 
 ### 1. Supabase Setup
 
@@ -206,6 +210,7 @@ Required Netlify environment variables:
 SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 RAWG_API_KEY=your-rawg-api-key
+STEAM_API_KEY=your-steam-web-api-key
 STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
 COMMENT_MODERATION_MODE=manual
 ```
@@ -223,6 +228,7 @@ Expected shape:
   "status": "ok",
   "service": "GameMemory Netlify API",
   "rawg_api_key_configured": true,
+  "steam_api_key_configured": true,
   "steamgriddb_api_key_configured": true,
   "supabase_configured": true
 }
@@ -232,12 +238,14 @@ Then test:
 
 1. Search for a game.
 2. Import it.
-3. Open the game detail page.
-4. Edit your review.
-5. Choose artwork if available.
-6. Add a Memory Wall comment.
-7. Add a Memory Wall comment with an image.
-8. Refresh the page and confirm data persists.
+3. Read a public Steam library by SteamID64.
+4. Import selected Steam games and confirm playtime appears.
+5. Open the game detail page.
+6. Edit your review.
+7. Choose artwork if available.
+8. Add a Memory Wall comment.
+9. Add a Memory Wall comment with an image.
+10. Refresh the page and confirm data persists.
 
 ## Local Development
 
@@ -271,6 +279,7 @@ DJANGO_SECRET_KEY=change-me
 DJANGO_DEBUG=True
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
 RAWG_API_KEY=your-rawg-api-key
+STEAM_API_KEY=your-steam-web-api-key
 STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
 ```
 
@@ -301,6 +310,8 @@ DELETE /api/games/:id
 GET    /api/games/search?q=elden%20ring
 GET    /api/games/trending
 POST   /api/games/import_rawg
+GET    /api/steam/library?steamId=7656119...
+POST   /api/steam/import
 GET    /api/games/:id/media
 GET    /api/games/:id/artwork
 PATCH  /api/games/:id/artwork
@@ -318,6 +329,7 @@ GET    /api/stats
 SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY
 RAWG_API_KEY
+STEAM_API_KEY
 STEAMGRIDDB_API_KEY
 COMMENT_MODERATION_MODE
 ```
@@ -395,6 +407,7 @@ Use the [games API route](https://1gamememory1.netlify.app/api/games) to verify 
 - [x] Vue 3 + Vite frontend
 - [x] Django + DRF local backend
 - [x] RAWG search and import
+- [x] Steam library import and playtime display
 - [x] SQLite local archive
 - [x] Supabase production database
 - [x] Netlify production deployment

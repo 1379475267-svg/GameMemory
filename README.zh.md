@@ -25,6 +25,7 @@
 - **Netlify Functions** 提供生产 API
 - **Supabase PostgreSQL** 存储游戏和留言数据
 - **Supabase Storage** 存储记忆墙图片
+- **Steam Web API** 导入拥有的游戏库和游玩时长
 - **RAWG API** 提供游戏搜索、元数据、截图和预告片
 - **SteamGridDB API** 提供封面、横幅和 Logo 素材
 
@@ -61,6 +62,8 @@ Netlify 版本连接真实的 serverless API 和 Supabase 数据库。GitHub Pag
 - 使用 RAWG API 搜索游戏。
 - 在搜索页展示近期高热度游戏。
 - 将游戏导入存储在 Supabase 的档案库。
+- 通过 SteamID64 导入公开 Steam 游戏库。
+- 存储 Steam AppID、总游玩时长、近两周游玩时长和 Steam 商店链接。
 - 以暗色档案卡片浏览游戏。
 - 按状态筛选，按关键词搜索，按标签筛选，并支持排序。
 - 将当前游戏库视图导出为 JSON 或 CSV。
@@ -109,6 +112,7 @@ comment-images
 | 生产存储 | Supabase Storage | 存储留言图片 |
 | 本地后端 | Django, Django REST Framework | legacy / 本地学习后端 |
 | 本地数据库 | SQLite | Django 后端使用 |
+| Steam 游戏库 | Steam Web API | 拥有的游戏和游玩时长导入 |
 | 游戏数据 | RAWG API | 搜索、元数据、截图、预告片 |
 | 游戏素材 | SteamGridDB API | 封面、横幅、Logo |
 
@@ -160,7 +164,7 @@ GameMemory/
 |---|---|
 | Netlify | Vue 前端和 serverless API |
 | Supabase | PostgreSQL 数据库和 Storage |
-| RAWG / SteamGridDB | 外部游戏数据和素材 API |
+| Steam / RAWG / SteamGridDB | 外部游戏库数据、游戏数据和素材 API |
 
 ### 1. Supabase 设置
 
@@ -206,6 +210,7 @@ Functions directory:   netlify/functions
 SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 RAWG_API_KEY=your-rawg-api-key
+STEAM_API_KEY=your-steam-web-api-key
 STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
 COMMENT_MODERATION_MODE=manual
 ```
@@ -223,6 +228,7 @@ COMMENT_MODERATION_MODE=manual
   "status": "ok",
   "service": "GameMemory Netlify API",
   "rawg_api_key_configured": true,
+  "steam_api_key_configured": true,
   "steamgriddb_api_key_configured": true,
   "supabase_configured": true
 }
@@ -232,12 +238,14 @@ COMMENT_MODERATION_MODE=manual
 
 1. 搜索一个游戏。
 2. 导入游戏。
-3. 打开游戏详情页。
-4. 编辑自己的评价。
-5. 如果有素材候选，选择详情页素材。
-6. 添加一条记忆墙留言。
-7. 添加一条带图片的记忆墙留言。
-8. 刷新页面，确认数据仍然存在。
+3. 通过 SteamID64 读取公开 Steam 游戏库。
+4. 导入所选 Steam 游戏，并确认游玩时长显示正常。
+5. 打开游戏详情页。
+6. 编辑自己的评价。
+7. 如果有素材候选，选择详情页素材。
+8. 添加一条记忆墙留言。
+9. 添加一条带图片的记忆墙留言。
+10. 刷新页面，确认数据仍然存在。
 
 ## 本地开发
 
@@ -271,6 +279,7 @@ DJANGO_SECRET_KEY=change-me
 DJANGO_DEBUG=True
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
 RAWG_API_KEY=your-rawg-api-key
+STEAM_API_KEY=your-steam-web-api-key
 STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
 ```
 
@@ -301,6 +310,8 @@ DELETE /api/games/:id
 GET    /api/games/search?q=elden%20ring
 GET    /api/games/trending
 POST   /api/games/import_rawg
+GET    /api/steam/library?steamId=7656119...
+POST   /api/steam/import
 GET    /api/games/:id/media
 GET    /api/games/:id/artwork
 PATCH  /api/games/:id/artwork
@@ -318,6 +329,7 @@ GET    /api/stats
 SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY
 RAWG_API_KEY
+STEAM_API_KEY
 STEAMGRIDDB_API_KEY
 COMMENT_MODERATION_MODE
 ```
@@ -395,6 +407,7 @@ grant usage, select on all sequences in schema public to service_role;
 - [x] Vue 3 + Vite 前端
 - [x] Django + DRF 本地后端
 - [x] RAWG 搜索和导入
+- [x] Steam 游戏库导入和时长显示
 - [x] SQLite 本地档案库
 - [x] Supabase 生产数据库
 - [x] Netlify 生产部署

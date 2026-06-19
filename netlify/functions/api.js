@@ -3,6 +3,7 @@ import {
   fetchRawgMedia,
   fetchRawgSearch,
   fetchRawgTrending,
+  fetchSteamOwnedGames,
   fetchSteamGridArtwork,
   getSupabaseClient,
   normalizeGame,
@@ -61,6 +62,31 @@ const OFFICIAL_FIELDS = [
   'trailers',
 ]
 
+function steamGamePayload(game) {
+  return {
+    rawg_id: null,
+    steam_appid: game.steam_appid,
+    name: game.name,
+    slug: `steam-${game.steam_appid}`,
+    background_image: game.background_image,
+    platforms: ['PC'],
+    genres: [],
+    stores: [
+      {
+        name: 'Steam',
+        domain: 'store.steampowered.com',
+        url: game.store_url,
+      },
+    ],
+    steam_playtime_forever: game.playtime_forever,
+    steam_playtime_2weeks: game.playtime_2weeks,
+    steam_icon_url: game.icon_url,
+    steam_imported_at: new Date().toISOString(),
+    status: game.playtime_forever > 0 ? 'playing' : 'backlog',
+    play_platform: 'PC',
+  }
+}
+
 export async function handler(event) {
   const method = event.httpMethod
   const path = event.path.replace(/^\/(?:\.netlify\/functions\/api|api)\/?/, '').replace(/\/$/, '')
@@ -75,6 +101,7 @@ export async function handler(event) {
         service: 'GameMemory Netlify API',
         rawg_api_key_configured: Boolean(process.env.RAWG_API_KEY),
         steamgriddb_api_key_configured: Boolean(process.env.STEAMGRIDDB_API_KEY),
+        steam_api_key_configured: Boolean(process.env.STEAM_API_KEY),
         supabase_configured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY),
       })
     }
@@ -104,6 +131,73 @@ export async function handler(event) {
       }
 
       return json(405, { detail: 'Method not allowed.' })
+    }
+
+    if (parts[0] === 'steam') {
+      if (parts[1] === 'library') {
+        if (method !== 'GET') return json(405, { detail: 'Method not allowed.' })
+        const steamId = event.queryStringParameters?.steamId
+        return json(200, await fetchSteamOwnedGames(steamId))
+      }
+
+      if (parts[1] === 'import') {
+        if (method !== 'POST') return json(405, { detail: 'Method not allowed.' })
+
+        const body = parseJsonBody(event)
+        const library = await fetchSteamOwnedGames(body.steam_id)
+        const selectedAppids = Array.isArray(body.appids) ? new Set(body.appids.map(Number)) : null
+        const gamesToImport = selectedAppids
+          ? library.games.filter((game) => selectedAppids.has(game.steam_appid))
+          : library.games
+
+        if (!gamesToImport.length) return json(400, { detail: '没有可导入的 Steam 游戏。' })
+
+        const supabase = getSupabaseClient()
+        const imported = []
+        const updated = []
+
+        for (const steamGame of gamesToImport) {
+          const payload = steamGamePayload(steamGame)
+          let existing = await supabase.from('games').select('*').eq('steam_appid', steamGame.steam_appid).maybeSingle()
+          if (existing.error) throw existing.error
+
+          if (!existing.data) {
+            existing = await supabase.from('games').select('*').ilike('name', steamGame.name).limit(1).maybeSingle()
+            if (existing.error) throw existing.error
+          }
+
+          if (existing.data) {
+            const result = await supabase
+              .from('games')
+              .update({
+                steam_appid: payload.steam_appid,
+                steam_playtime_forever: payload.steam_playtime_forever,
+                steam_playtime_2weeks: payload.steam_playtime_2weeks,
+                steam_icon_url: payload.steam_icon_url,
+                steam_imported_at: payload.steam_imported_at,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', existing.data.id)
+              .select('*')
+              .single()
+            if (result.error) throw result.error
+            updated.push(normalizeGame(result.data))
+            continue
+          }
+
+          const result = await supabase.from('games').insert(payload).select('*').single()
+          if (result.error) throw result.error
+          imported.push(normalizeGame(result.data))
+        }
+
+        return json(200, {
+          imported_count: imported.length,
+          updated_count: updated.length,
+          games: [...imported, ...updated],
+        })
+      }
+
+      return json(404, { detail: 'Steam API route not found.' })
     }
 
     if (parts[0] === 'games' && parts[1] === 'import_rawg') {
@@ -331,7 +425,10 @@ export async function handler(event) {
     }
 
     const isImportOrExternal =
-      parts[0] === 'games' && ['search', 'trending', 'import_rawg'].includes(parts[1]) || parts[2] === 'media' || parts[2] === 'artwork'
+      parts[0] === 'steam' ||
+      parts[0] === 'games' && ['search', 'trending', 'import_rawg'].includes(parts[1]) ||
+      parts[2] === 'media' ||
+      parts[2] === 'artwork'
     return json(isImportOrExternal ? 502 : 500, {
       detail: isImportOrExternal ? '外部游戏资料暂时不可用，请稍后再试。' : '服务暂时不可用，请稍后再试。',
     })
