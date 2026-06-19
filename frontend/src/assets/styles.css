@@ -190,6 +190,19 @@ p {
   letter-spacing: 0;
 }
 
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.page-actions button,
+.page-actions .primary-action {
+  width: auto;
+  white-space: nowrap;
+}
+
 .eyebrow {
   margin-bottom: 8px;
   text-transform: uppercase;
@@ -215,6 +228,13 @@ p {
   color: #071015;
   background: var(--accent-2);
   border-color: var(--accent-2);
+}
+
+.library-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px 160px;
+  gap: 10px;
+  margin-bottom: 22px;
 }
 
 .game-grid {
@@ -509,6 +529,55 @@ p {
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
 }
 
+.artwork-panel .section-title {
+  align-items: center;
+}
+
+.artwork-panel .section-title button {
+  width: auto;
+  white-space: nowrap;
+}
+
+.artwork-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.artwork-group {
+  display: grid;
+  gap: 10px;
+}
+
+.artwork-group h3 {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.artwork-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  gap: 10px;
+}
+
+.artwork-options button {
+  min-height: 0;
+  border-color: var(--line);
+  padding: 4px;
+  background: #0c111a;
+}
+
+.artwork-options button.selected {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 2px rgba(244, 201, 93, 0.18);
+}
+
+.artwork-options img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 .panel {
   padding: 18px;
 }
@@ -730,7 +799,17 @@ button.danger {
     align-items: stretch;
   }
 
+  .page-actions {
+    justify-content: stretch;
+  }
+
+  .page-actions button,
+  .page-actions .primary-action {
+    width: 100%;
+  }
+
   .search-bar,
+  .library-tools,
   .score-grid,
   .inline-form {
     grid-template-columns: 1fr;

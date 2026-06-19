@@ -35,6 +35,14 @@ export function fetchGameArtwork(id) {
   return apiRequest(`/games/${id}/artwork/`)
 }
 
+export function updateGameArtwork(id, assets) {
+  if (DEMO_MODE) return Promise.resolve({ assets, candidates: {} })
+  return apiRequest(`/games/${id}/artwork/`, {
+    method: 'PATCH',
+    body: JSON.stringify({ assets }),
+  })
+}
+
 export function updateGame(id, payload) {
   if (DEMO_MODE) return demoUpdateGame(id, payload)
   return apiRequest(`/games/${id}/`, {

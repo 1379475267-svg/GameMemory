@@ -27,6 +27,11 @@ function parseJsonBody(event) {
   return JSON.parse(event.body)
 }
 
+function clientIp(event) {
+  const headers = event.headers || {}
+  return headers['client-ip'] || headers['x-forwarded-for']?.split(',')[0]?.trim() || ''
+}
+
 function mediaPayload(game) {
   return {
     screenshots: game.screenshots || [],
@@ -95,7 +100,7 @@ export async function handler(event) {
       }
 
       if (method === 'POST') {
-        return json(201, await createGameComment(parseJsonBody(event)))
+        return json(201, await createGameComment(parseJsonBody(event), { clientIp: clientIp(event) }))
       }
 
       return json(405, { detail: 'Method not allowed.' })
@@ -210,10 +215,36 @@ export async function handler(event) {
         if (existing.error) throw existing.error
 
         const game = existing.data
+        if (method === 'PATCH') {
+          const body = parseJsonBody(event)
+          const assets = body.assets || {}
+          const selectedAssets = {
+            poster: assets.poster || null,
+            hero: assets.hero || null,
+            logo: assets.logo || null,
+          }
+          const updated = await supabase
+            .from('games')
+            .update({ steamgrid_assets: selectedAssets, updated_at: new Date().toISOString() })
+            .eq('id', id)
+            .select('*')
+            .single()
+          if (updated.error) throw updated.error
+          return json(200, {
+            steamgriddb_id: updated.data.steamgriddb_id,
+            assets: updated.data.steamgrid_assets || {},
+            candidates: {},
+          })
+        }
+
+        if (method !== 'GET') return json(405, { detail: 'Method not allowed.' })
+
         if (game.steamgrid_assets && Object.keys(game.steamgrid_assets).length) {
+          const freshArtwork = await fetchSteamGridArtwork(game.name).catch(() => ({ candidates: {} }))
           return json(200, {
             steamgriddb_id: game.steamgriddb_id,
             assets: game.steamgrid_assets,
+            candidates: freshArtwork.candidates || {},
           })
         }
 
@@ -233,6 +264,7 @@ export async function handler(event) {
         return json(200, {
           steamgriddb_id: updated.data.steamgriddb_id,
           assets: updated.data.steamgrid_assets || {},
+          candidates: artwork.candidates || {},
         })
       }
 
@@ -300,6 +332,8 @@ export async function handler(event) {
 
     const isImportOrExternal =
       parts[0] === 'games' && ['search', 'trending', 'import_rawg'].includes(parts[1]) || parts[2] === 'media' || parts[2] === 'artwork'
-    return json(isImportOrExternal ? 502 : 500, { detail: error.message || 'Request failed.' })
+    return json(isImportOrExternal ? 502 : 500, {
+      detail: isImportOrExternal ? '外部游戏资料暂时不可用，请稍后再试。' : '服务暂时不可用，请稍后再试。',
+    })
   }
 }

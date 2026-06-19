@@ -1,13 +1,16 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { fetchTrendingGames, importRawgGame, searchRawgGames } from '../api/games'
 
+const router = useRouter()
 const query = ref('')
 const results = ref([])
 const trending = ref([])
 const loading = ref(false)
 const trendingLoading = ref(false)
 const importingId = ref(null)
+const importedGames = ref({})
 const message = ref('')
 const error = ref('')
 const hasSearched = ref(false)
@@ -52,12 +55,18 @@ async function importGame(rawgId) {
   message.value = ''
   try {
     const game = await importRawgGame(rawgId)
+    importedGames.value = { ...importedGames.value, [rawgId]: game }
     message.value = `已导入 ${game.name}`
   } catch (err) {
     error.value = err.message
   } finally {
     importingId.value = null
   }
+}
+
+function openImportedGame(rawgId) {
+  const game = importedGames.value[rawgId]
+  if (game?.id) router.push(`/games/${game.id}`)
 }
 
 onMounted(loadTrending)
@@ -107,7 +116,15 @@ onMounted(loadTrending)
             <span v-for="genre in game.genres.slice(0, 4)" :key="genre">{{ genre }}</span>
           </div>
         </div>
-        <button type="button" :disabled="importingId === game.rawg_id" @click="importGame(game.rawg_id)">
+        <button
+          v-if="importedGames[game.rawg_id]"
+          type="button"
+          class="ghost-button"
+          @click="openImportedGame(game.rawg_id)"
+        >
+          查看档案
+        </button>
+        <button v-else type="button" :disabled="importingId === game.rawg_id" @click="importGame(game.rawg_id)">
           {{ importingId === game.rawg_id ? '导入中' : '导入' }}
         </button>
       </article>
