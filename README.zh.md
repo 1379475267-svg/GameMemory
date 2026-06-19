@@ -1,6 +1,9 @@
 # GameMemory
 
-[English](README.md) | **中文**
+<p>
+  <a href="README.md"><img alt="English README" src="https://img.shields.io/badge/Language-English-blue?style=for-the-badge"></a>
+  <a href="README.zh.md"><img alt="中文 README" src="https://img.shields.io/badge/语言-中文-red?style=for-the-badge"></a>
+</p>
 
 > 一个个人全栈游戏档案馆：搜索、导入、评分、打标签、写评价、分享记忆，并导出自己的游戏收藏。
 
@@ -29,9 +32,9 @@
 
 ## 在线演示
 
-- 生产站点：[https://1gamememory1.netlify.app](https://1gamememory1.netlify.app)
-- API 健康检查：[https://1gamememory1.netlify.app/api/health](https://1gamememory1.netlify.app/api/health)
-- 静态 UI 演示：[https://1379475267-svg.github.io/GameMemory/](https://1379475267-svg.github.io/GameMemory/)
+- 生产站点：[打开 GameMemory](https://1gamememory1.netlify.app)
+- API 健康检查：[打开 API 健康检查](https://1gamememory1.netlify.app/api/health)
+- 静态 UI 演示：[打开静态 UI 演示](https://1379475267-svg.github.io/GameMemory/)
 
 Netlify 版本连接真实的 serverless API 和 Supabase 数据库。GitHub Pages 版本只是静态界面预览。
 
@@ -211,7 +214,7 @@ COMMENT_MODERATION_MODE=manual
 
 ### 3. 验证生产环境
 
-打开 [https://your-netlify-site.netlify.app/api/health](https://your-netlify-site.netlify.app/api/health)。
+打开 [你的 Netlify API 健康检查](https://your-netlify-site.netlify.app/api/health)。
 
 预期返回结构：
 
@@ -246,9 +249,9 @@ npm install
 npm run dev
 ```
 
-前端地址：[http://127.0.0.1:5173](http://127.0.0.1:5173)
+前端地址：[打开本地前端](http://127.0.0.1:5173)
 
-本地 Vite 开发时，前端默认访问 Django API：[http://127.0.0.1:8000/api](http://127.0.0.1:8000/api)。
+本地 Vite 开发时，前端默认访问 Django API：[打开本地 API](http://127.0.0.1:8000/api)。
 
 ### Django 后端
 
@@ -271,7 +274,7 @@ RAWG_API_KEY=your-rawg-api-key
 STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
 ```
 
-后端健康检查：[http://127.0.0.1:8000/api/health/](http://127.0.0.1:8000/api/health/)
+后端健康检查：[打开本地后端健康检查](http://127.0.0.1:8000/api/health/)
 
 ### Netlify 风格构建
 
@@ -357,7 +360,7 @@ npm install --prefix frontend && npm run build --prefix frontend
 
 通常是 `SUPABASE_URL` 配置不正确。
 
-正确格式：[https://your-project-id.supabase.co](https://your-project-id.supabase.co)
+正确格式：[你的 Supabase 项目 URL](https://your-project-id.supabase.co)
 
 不要包含 `/rest/v1/`。
 
@@ -385,7 +388,7 @@ grant usage, select on all sequences in schema public to service_role;
 
 `/api/health` 只检查环境变量是否存在，不证明 Supabase URL 和 service role key 一定有效。
 
-可以使用 [/api/games](https://1gamememory1.netlify.app/api/games) 验证真实数据库访问。
+可以使用 [games API 路由](https://1gamememory1.netlify.app/api/games) 验证真实数据库访问。
 
 ## Roadmap
 

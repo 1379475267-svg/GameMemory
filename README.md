@@ -1,6 +1,9 @@
 # GameMemory
 
-**English** | [中文](README.zh.md)
+<p>
+  <a href="README.md"><img alt="English README" src="https://img.shields.io/badge/Language-English-blue?style=for-the-badge"></a>
+  <a href="README.zh.md"><img alt="中文 README" src="https://img.shields.io/badge/语言-中文-red?style=for-the-badge"></a>
+</p>
 
 > A personal full-stack game archive for searching, importing, rating, tagging, reviewing, sharing memories, and exporting your collection.
 
@@ -29,9 +32,9 @@ The repository also keeps the earlier **Django + Django REST Framework + SQLite*
 
 ## Live Demo
 
-- Production site: [https://1gamememory1.netlify.app](https://1gamememory1.netlify.app)
-- API health check: [https://1gamememory1.netlify.app/api/health](https://1gamememory1.netlify.app/api/health)
-- Static UI demo: [https://1379475267-svg.github.io/GameMemory/](https://1379475267-svg.github.io/GameMemory/)
+- Production site: [Open GameMemory](https://1gamememory1.netlify.app)
+- API health check: [Open API health check](https://1gamememory1.netlify.app/api/health)
+- Static UI demo: [Open static UI demo](https://1379475267-svg.github.io/GameMemory/)
 
 The Netlify version connects to the real serverless API and Supabase database. The GitHub Pages version is only a static interface preview.
 
@@ -211,7 +214,7 @@ COMMENT_MODERATION_MODE=manual
 
 ### 3. Verify Production
 
-Open [https://your-netlify-site.netlify.app/api/health](https://your-netlify-site.netlify.app/api/health).
+Open [your Netlify API health check](https://your-netlify-site.netlify.app/api/health).
 
 Expected shape:
 
@@ -246,9 +249,9 @@ npm install
 npm run dev
 ```
 
-Frontend URL: [http://127.0.0.1:5173](http://127.0.0.1:5173)
+Frontend URL: [open local frontend](http://127.0.0.1:5173)
 
-In local Vite development, the frontend defaults to the Django API at [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api).
+In local Vite development, the frontend defaults to the Django API at [open local API](http://127.0.0.1:8000/api).
 
 ### Django Backend
 
@@ -271,7 +274,7 @@ RAWG_API_KEY=your-rawg-api-key
 STEAMGRIDDB_API_KEY=your-steamgriddb-api-key
 ```
 
-Backend health check: [http://127.0.0.1:8000/api/health/](http://127.0.0.1:8000/api/health/)
+Backend health check: [open local backend health check](http://127.0.0.1:8000/api/health/)
 
 ### Netlify-Style Build
 
@@ -357,7 +360,7 @@ This is already configured in the root `package.json`.
 
 This is usually caused by an incorrect `SUPABASE_URL`.
 
-Correct format: [https://your-project-id.supabase.co](https://your-project-id.supabase.co)
+Correct format: [your Supabase project URL](https://your-project-id.supabase.co)
 
 Do not include `/rest/v1/`.
 
@@ -385,7 +388,7 @@ Check:
 
 `/api/health` only checks whether environment variables exist. It does not prove the Supabase URL and service role key are valid.
 
-Use [/api/games](https://1gamememory1.netlify.app/api/games) to verify real database access.
+Use the [games API route](https://1gamememory1.netlify.app/api/games) to verify real database access.
 
 ## Roadmap
 
