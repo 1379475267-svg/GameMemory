@@ -87,6 +87,12 @@ function steamGamePayload(game) {
   }
 }
 
+function normalizeName(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+}
+
 export async function handler(event) {
   const method = event.httpMethod
   const path = event.path.replace(/^\/(?:\.netlify\/functions\/api|api)\/?/, '').replace(/\/$/, '')
@@ -153,47 +159,52 @@ export async function handler(event) {
         if (!gamesToImport.length) return json(400, { detail: '没有可导入的 Steam 游戏。' })
 
         const supabase = getSupabaseClient()
-        const imported = []
-        const updated = []
+        const appids = gamesToImport.map((game) => game.steam_appid)
+        const names = gamesToImport.map((game) => game.name).filter(Boolean)
+        const existingBySteam = appids.length
+          ? await supabase.from('games').select('*').in('steam_appid', appids)
+          : { data: [], error: null }
+        if (existingBySteam.error) throw existingBySteam.error
 
-        for (const steamGame of gamesToImport) {
+        const existingByName = names.length
+          ? await supabase.from('games').select('*').in('name', names)
+          : { data: [], error: null }
+        if (existingByName.error) throw existingByName.error
+
+        const rowsBySteam = new Map((existingBySteam.data || []).map((game) => [game.steam_appid, game]))
+        const rowsByName = new Map((existingByName.data || []).map((game) => [normalizeName(game.name), game]))
+        const now = new Date().toISOString()
+        const rows = gamesToImport.map((steamGame) => {
           const payload = steamGamePayload(steamGame)
-          let existing = await supabase.from('games').select('*').eq('steam_appid', steamGame.steam_appid).maybeSingle()
-          if (existing.error) throw existing.error
-
-          if (!existing.data) {
-            existing = await supabase.from('games').select('*').ilike('name', steamGame.name).limit(1).maybeSingle()
-            if (existing.error) throw existing.error
+          const existing = rowsBySteam.get(steamGame.steam_appid) || rowsByName.get(normalizeName(steamGame.name))
+          if (!existing) {
+            return {
+              ...payload,
+              steam_imported_at: now,
+              updated_at: now,
+            }
           }
 
-          if (existing.data) {
-            const result = await supabase
-              .from('games')
-              .update({
-                steam_appid: payload.steam_appid,
-                steam_playtime_forever: payload.steam_playtime_forever,
-                steam_playtime_2weeks: payload.steam_playtime_2weeks,
-                steam_icon_url: payload.steam_icon_url,
-                steam_imported_at: payload.steam_imported_at,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('id', existing.data.id)
-              .select('*')
-              .single()
-            if (result.error) throw result.error
-            updated.push(normalizeGame(result.data))
-            continue
+          return {
+            ...existing,
+            steam_appid: payload.steam_appid,
+            steam_playtime_forever: payload.steam_playtime_forever,
+            steam_playtime_2weeks: payload.steam_playtime_2weeks,
+            steam_icon_url: payload.steam_icon_url,
+            steam_imported_at: now,
+            updated_at: now,
           }
+        })
 
-          const result = await supabase.from('games').insert(payload).select('*').single()
-          if (result.error) throw result.error
-          imported.push(normalizeGame(result.data))
-        }
+        const existingIds = new Set(rows.filter((row) => row.id).map((row) => row.id))
+        const result = await supabase.from('games').upsert(rows, { onConflict: 'id' }).select('*')
+        if (result.error) throw result.error
+        const normalized = result.data.map(normalizeGame)
 
         return json(200, {
-          imported_count: imported.length,
-          updated_count: updated.length,
-          games: [...imported, ...updated],
+          imported_count: normalized.filter((game) => !existingIds.has(game.id)).length,
+          updated_count: normalized.filter((game) => existingIds.has(game.id)).length,
+          games: normalized,
         })
       }
 
