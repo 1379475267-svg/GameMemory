@@ -40,6 +40,12 @@ const logoImage = computed(() => {
   return artwork.value?.assets?.logo?.url || ''
 })
 
+function formatHours(minutes) {
+  if (!minutes) return '0 小时'
+  const hours = minutes / 60
+  return `${hours >= 10 ? Math.round(hours) : hours.toFixed(1)} 小时`
+}
+
 const scoreModel = computed({
   get() {
     return scoreFields.reduce((result, field) => {
@@ -278,6 +284,32 @@ onMounted(loadGame)
             </div>
           </dl>
           <p class="description">{{ game.description || '暂无简介。' }}</p>
+        </div>
+
+        <div v-if="game.steam_appid" class="panel steam-stats-panel">
+          <div class="section-title">
+            <div>
+              <h2>Steam 数据</h2>
+              <p>由 Steam 库导入的游玩记录。</p>
+            </div>
+            <a :href="`https://store.steampowered.com/app/${game.steam_appid}`" target="_blank" rel="noreferrer">
+              Steam 商店
+            </a>
+          </div>
+          <dl class="meta-list">
+            <div>
+              <dt>AppID</dt>
+              <dd>{{ game.steam_appid }}</dd>
+            </div>
+            <div>
+              <dt>总时长</dt>
+              <dd>{{ formatHours(game.steam_playtime_forever) }}</dd>
+            </div>
+            <div>
+              <dt>近两周</dt>
+              <dd>{{ formatHours(game.steam_playtime_2weeks) }}</dd>
+            </div>
+          </dl>
         </div>
 
         <div v-if="media?.trailers?.length || media?.stores?.length || media?.website" class="panel">

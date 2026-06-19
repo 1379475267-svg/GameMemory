@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 const RAWG_BASE_URL = 'https://api.rawg.io/api'
+const STEAM_BASE_URL = 'https://api.steampowered.com'
 const STEAMGRIDDB_BASE_URL = 'https://www.steamgriddb.com/api/v2'
 
 export function sendJson(response, status, data) {
@@ -43,6 +44,11 @@ export function normalizeGame(row) {
     stores: row.stores || [],
     screenshots: row.screenshots || [],
     trailers: row.trailers || [],
+    steam_appid: row.steam_appid,
+    steam_playtime_forever: row.steam_playtime_forever || 0,
+    steam_playtime_2weeks: row.steam_playtime_2weeks || 0,
+    steam_icon_url: row.steam_icon_url || '',
+    steam_imported_at: row.steam_imported_at,
     steamgriddb_id: row.steamgriddb_id,
     steamgrid_assets: row.steamgrid_assets || {},
     status: row.status || 'backlog',
@@ -57,6 +63,72 @@ export function normalizeGame(row) {
     review: row.review || '',
     created_at: row.created_at,
     updated_at: row.updated_at,
+  }
+}
+
+export async function steamRequest(path, params = {}) {
+  if (!process.env.STEAM_API_KEY) {
+    throw new Error('Steam API key is not configured.')
+  }
+
+  const url = new URL(`${STEAM_BASE_URL}${path}`)
+  url.searchParams.set('key', process.env.STEAM_API_KEY)
+  url.searchParams.set('format', 'json')
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.set(key, value)
+    }
+  })
+
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`Steam API returned HTTP ${response.status}.`)
+  }
+
+  return response.json()
+}
+
+function steamImage(appid, fileName) {
+  return `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/${fileName}`
+}
+
+export function normalizeSteamGame(item) {
+  const appid = Number(item.appid)
+  return {
+    steam_appid: appid,
+    name: item.name || `Steam App ${appid}`,
+    playtime_forever: Number(item.playtime_forever || 0),
+    playtime_2weeks: Number(item.playtime_2weeks || 0),
+    icon_url: item.img_icon_url ? steamImage(appid, `${item.img_icon_url}.jpg`) : '',
+    logo_url: item.img_logo_url ? steamImage(appid, `${item.img_logo_url}.jpg`) : '',
+    background_image: steamImage(appid, 'header.jpg'),
+    store_url: `https://store.steampowered.com/app/${appid}`,
+    has_community_visible_stats: Boolean(item.has_community_visible_stats),
+  }
+}
+
+export async function fetchSteamOwnedGames(steamId) {
+  const cleanSteamId = String(steamId || '').trim()
+  if (!/^\d{17}$/.test(cleanSteamId)) {
+    const error = new Error('请输入 17 位 SteamID64。')
+    error.statusCode = 400
+    throw error
+  }
+
+  const data = await steamRequest('/IPlayerService/GetOwnedGames/v0001/', {
+    steamid: cleanSteamId,
+    include_appinfo: 1,
+    include_played_free_games: 1,
+  })
+  const response = data.response || {}
+  const games = (response.games || []).map(normalizeSteamGame).sort((a, b) => {
+    return b.playtime_forever - a.playtime_forever || a.name.localeCompare(b.name)
+  })
+
+  return {
+    steam_id: cleanSteamId,
+    total_count: Number(response.game_count || games.length || 0),
+    games,
   }
 }
 

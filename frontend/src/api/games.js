@@ -76,6 +76,31 @@ export function importRawgGame(rawgId) {
   })
 }
 
+export function fetchSteamLibrary(steamId) {
+  if (DEMO_MODE) {
+    return Promise.resolve({
+      steam_id: steamId,
+      total_count: 0,
+      games: [],
+    })
+  }
+  return apiRequest(`/steam/library/?steamId=${encodeURIComponent(steamId)}`)
+}
+
+export function importSteamLibrary(steamId, appids = []) {
+  if (DEMO_MODE) {
+    return Promise.resolve({
+      imported_count: 0,
+      updated_count: 0,
+      games: [],
+    })
+  }
+  return apiRequest('/steam/import/', {
+    method: 'POST',
+    body: JSON.stringify({ steam_id: steamId, appids }),
+  })
+}
+
 export function fetchStats() {
   if (DEMO_MODE) return demoFetchStats()
   return apiRequest('/stats/')
