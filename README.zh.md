@@ -25,7 +25,7 @@
 - **Netlify Functions** 提供生产 API
 - **Supabase PostgreSQL** 存储游戏和留言数据
 - **Supabase Storage** 存储记忆墙图片
-- **Steam Web API** 导入拥有的游戏库和游玩时长
+- **Steam Web API** 导入公开 Steam 游戏库和游玩时长
 - **RAWG API** 提供游戏搜索、元数据、截图和预告片
 - **SteamGridDB API** 提供封面、横幅和 Logo 素材
 
@@ -64,8 +64,8 @@ Netlify 版本连接真实的 serverless API 和 Supabase 数据库。GitHub Pag
 - 将游戏导入存储在 Supabase 的档案库。
 - 通过 SteamID64 导入公开 Steam 游戏库。
 - 存储 Steam AppID、总游玩时长、近两周游玩时长和 Steam 商店链接。
-- 以暗色档案卡片浏览游戏。
-- 按状态筛选，按关键词搜索，按标签筛选，并支持排序。
+- 使用温暖的浅色档案馆界面浏览游戏卡片。
+- 按状态筛选、按关键词搜索、按标签筛选，并支持排序。
 - 将当前游戏库视图导出为 JSON 或 CSV。
 - 查看官方资料、截图、商店、预告片和 SteamGridDB 素材。
 - 为详情页选择 SteamGridDB 封面、横幅和 Logo。
@@ -94,7 +94,7 @@ Netlify 版本连接真实的 serverless API 和 Supabase 数据库。GitHub Pag
 - 前端允许选择最大 5 MB 的图片，并在上传前自动压缩
 - 服务端最终上传限制为 2 MB
 - 图片由 Netlify Functions 使用服务端 Supabase 凭据上传
-- 前端代码永远不会拿到 Supabase service role key
+- 前端代码不会拿到 Supabase service role key
 
 第一次上传图片时，函数可以自动创建 Supabase Storage bucket：
 
@@ -106,7 +106,7 @@ comment-images
 
 | 模块 | 技术 | 说明 |
 |---|---|---|
-| 前端 | Vue 3, Vite, Vue Router | 主用户界面 |
+| 前端 | Vue 3, Vite, Vue Router | 主要用户界面 |
 | 生产 API | Netlify Functions | `/api/*` 下的 serverless API |
 | 生产数据库 | Supabase PostgreSQL | 存储游戏、评价和记忆墙留言 |
 | 生产存储 | Supabase Storage | 存储留言图片 |
@@ -178,7 +178,7 @@ supabase/schema.sql
 
 - `public.games`
 - `public.game_comments`
-- 所需索引
+- 必要索引
 - Row Level Security policies
 - service role 权限
 
@@ -422,6 +422,7 @@ grant usage, select on all sequences in schema public to service_role;
 - [x] 档案数据导出
 - [x] 更友好的生产错误提示
 - [x] 可选留言审核流程
+- [x] 浅色档案馆界面
 - [ ] 用户登录和私有档案
 
 ## 作者
