@@ -64,7 +64,7 @@ The Netlify version connects to the real serverless API and Supabase database. T
 - Import games into the archive stored in Supabase.
 - Import a public Steam library by SteamID64.
 - Store Steam AppID, total playtime, recent two-week playtime, and Steam store links.
-- Browse games as dark archive-style cards.
+- Browse games in a warm light archive-style interface.
 - Filter games by status, search by keyword, filter by tags, and sort the library.
 - Export the current library view as JSON or CSV.
 - View official metadata, screenshots, stores, trailers, and SteamGridDB artwork.
