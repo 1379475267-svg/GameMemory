@@ -50,7 +50,7 @@ onMounted(loadStats)
     <div class="panel span-two">
       <h2>最常用标签</h2>
       <div class="tag-row large">
-        <span v-for="item in stats.top_tags" :key="item.tag">{{ item.tag }} × {{ item.count }}</span>
+        <span v-for="item in stats.top_tags" :key="item.tag">{{ item.tag }} x {{ item.count }}</span>
       </div>
       <p v-if="!stats.top_tags.length" class="muted-text">暂无标签。</p>
     </div>
