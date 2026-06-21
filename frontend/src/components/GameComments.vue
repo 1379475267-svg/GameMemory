@@ -247,7 +247,7 @@ onMounted(loadComments)
         <label class="image-input">
           记忆图片
           <input ref="fileInput" type="file" accept="image/png,image/jpeg,image/webp" @change="chooseImage" />
-          <span>可选，支持 JPG / PNG / WebP，最多 5MB，发布时会自动压缩</span>
+          <span>可选，支持 JPG / PNG / WebP，最大 5MB，发布时会自动压缩。</span>
         </label>
 
         <div v-if="imagePreview" class="image-preview">
@@ -290,10 +290,6 @@ onMounted(loadComments)
 .memory-wall {
   margin-top: 28px;
   overflow: hidden;
-  background:
-    linear-gradient(135deg, rgba(255, 207, 87, 0.08), transparent 34%),
-    rgba(17, 24, 39, 0.82);
-  backdrop-filter: blur(16px);
 }
 
 .memory-header,
@@ -317,9 +313,10 @@ onMounted(loadComments)
 
 .comment-count,
 .comment-rating {
-  border: 1px solid rgba(255, 207, 87, 0.34);
+  border: 1px solid rgba(40, 105, 133, 0.2);
   border-radius: 999px;
-  color: #ffd766;
+  color: var(--accent);
+  background: #eef8fb;
 }
 
 .comment-count {
@@ -361,7 +358,7 @@ onMounted(loadComments)
 .image-input span {
   display: block;
   margin-top: 8px;
-  color: #8090ad;
+  color: var(--muted);
   font-size: 0.92rem;
 }
 
@@ -377,29 +374,26 @@ onMounted(loadComments)
   justify-content: space-between;
   gap: 14px;
   padding: 12px;
-  border: 1px solid rgba(255, 207, 87, 0.24);
-  border-radius: 14px;
-  background: rgba(255, 207, 87, 0.06);
+  border: 1px solid rgba(229, 184, 92, 0.28);
+  border-radius: 8px;
+  background: #fff8e7;
 }
 
 .image-preview img {
   width: 168px;
   height: 96px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 7px;
 }
 
 .ghost-button {
   width: auto;
-  border: 1px solid rgba(255, 207, 87, 0.28);
-  background: transparent;
-  color: #ffd766;
 }
 
 .comment-actions {
   justify-content: space-between;
   gap: 16px;
-  color: #9fb2d2;
+  color: var(--muted);
 }
 
 .comment-actions button {
@@ -414,16 +408,17 @@ onMounted(loadComments)
 .empty-comments {
   margin: 0;
   padding: 22px;
-  border: 1px dashed rgba(255, 207, 87, 0.28);
-  border-radius: 12px;
-  color: #9fb2d2;
+  border: 1px dashed rgba(40, 105, 133, 0.24);
+  border-radius: 8px;
+  color: var(--muted);
+  background: #f8fbfa;
 }
 
 .comment-card {
   padding: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 14px;
-  background: rgba(8, 13, 24, 0.52);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdfb;
 }
 
 .comment-meta {
@@ -433,12 +428,12 @@ onMounted(loadComments)
 }
 
 .comment-meta strong {
-  color: #f7fbff;
+  color: var(--text);
 }
 
 .comment-meta time {
   margin-left: auto;
-  color: #8090ad;
+  color: var(--muted);
   font-size: 0.92rem;
 }
 
@@ -456,13 +451,13 @@ onMounted(loadComments)
   width: min(420px, 100%);
   max-height: 260px;
   object-fit: cover;
-  border: 1px solid rgba(255, 207, 87, 0.2);
-  border-radius: 12px;
+  border: 1px solid rgba(229, 184, 92, 0.28);
+  border-radius: 8px;
 }
 
 .comment-card p {
   margin: 0;
-  color: #dce7f7;
+  color: var(--text);
   line-height: 1.7;
   white-space: pre-wrap;
 }

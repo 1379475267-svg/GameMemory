@@ -34,7 +34,7 @@ function removeTag(tag) {
   <div class="tag-editor">
     <div class="tag-row editable">
       <button v-for="tag in modelValue" :key="tag" type="button" @click="removeTag(tag)">
-        {{ tag }} ×
+        {{ tag }} x
       </button>
     </div>
     <div class="inline-form">
