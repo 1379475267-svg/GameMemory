@@ -33,11 +33,13 @@
 
 ## 在线演示
 
+- 阿里云在线版：[打开 GameMemory](http://47.109.136.234/projects/gamememory/)
+- 阿里云 API 健康检查：[打开 API 健康检查](http://47.109.136.234/projects/gamememory/api/health)
 - 生产站点：[打开 GameMemory](https://1gamememory1.netlify.app)
 - API 健康检查：[打开 API 健康检查](https://1gamememory1.netlify.app/api/health)
 - 静态 UI 演示：[打开静态 UI 演示](https://1379475267-svg.github.io/GameMemory/)
 
-Netlify 版本连接真实的 serverless API 和 Supabase 数据库。GitHub Pages 版本只是静态界面预览。
+阿里云版本和 Netlify 版本都连接真实 API 与 Supabase 数据库。GitHub Pages 版本只是静态界面预览。
 
 ## 截图
 
