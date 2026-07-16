@@ -33,11 +33,13 @@ The repository also keeps the earlier **Django + Django REST Framework + SQLite*
 
 ## Live Demo
 
+- Alibaba Cloud deployment: [Open GameMemory](http://47.109.136.234/projects/gamememory/)
+- Alibaba Cloud API health check: [Open API health check](http://47.109.136.234/projects/gamememory/api/health)
 - Production site: [Open GameMemory](https://1gamememory1.netlify.app)
 - API health check: [Open API health check](https://1gamememory1.netlify.app/api/health)
 - Static UI demo: [Open static UI demo](https://1379475267-svg.github.io/GameMemory/)
 
-The Netlify version connects to the real serverless API and Supabase database. The GitHub Pages version is only a static interface preview.
+The Alibaba Cloud and Netlify versions connect to the real API and Supabase database. The GitHub Pages version is only a static interface preview.
 
 ## Screenshots
 
