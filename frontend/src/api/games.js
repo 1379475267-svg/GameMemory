@@ -13,95 +13,117 @@ import {
 } from './demoData'
 
 const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+let runtimeDemoMode = DEMO_MODE
+
+async function withDemoFallback(remoteRequest, demoRequest) {
+  if (runtimeDemoMode) return demoRequest()
+
+  try {
+    return await remoteRequest()
+  } catch (error) {
+    // Keep the portfolio demo usable when the hosted database or API is
+    // temporarily unavailable. Once a request fails, use one consistent local
+    // data source for the rest of the session instead of mixing remote and
+    // local records.
+    runtimeDemoMode = true
+    console.warn('GameMemory API unavailable; switched to local demo data.', error)
+    return demoRequest()
+  }
+}
 
 export function fetchGames(status = '') {
-  if (DEMO_MODE) return demoFetchGames(status)
   const query = status ? `?status=${encodeURIComponent(status)}` : ''
-  return apiRequest(`/games/${query}`)
+  return withDemoFallback(
+    () => apiRequest(`/games/${query}`),
+    () => demoFetchGames(status),
+  )
 }
 
 export function fetchGame(id) {
-  if (DEMO_MODE) return demoFetchGame(id)
-  return apiRequest(`/games/${id}/`)
+  return withDemoFallback(() => apiRequest(`/games/${id}/`), () => demoFetchGame(id))
 }
 
 export function fetchGameMedia(id) {
-  if (DEMO_MODE) return demoFetchGameMedia(id)
-  return apiRequest(`/games/${id}/media/`)
+  return withDemoFallback(() => apiRequest(`/games/${id}/media/`), () => demoFetchGameMedia(id))
 }
 
 export function fetchGameArtwork(id) {
-  if (DEMO_MODE) return demoFetchGameArtwork(id)
-  return apiRequest(`/games/${id}/artwork/`)
+  return withDemoFallback(() => apiRequest(`/games/${id}/artwork/`), () => demoFetchGameArtwork(id))
 }
 
 export function updateGameArtwork(id, assets) {
-  if (DEMO_MODE) return Promise.resolve({ assets, candidates: {} })
-  return apiRequest(`/games/${id}/artwork/`, {
-    method: 'PATCH',
-    body: JSON.stringify({ assets }),
-  })
+  return withDemoFallback(
+    () => apiRequest(`/games/${id}/artwork/`, {
+      method: 'PATCH',
+      body: JSON.stringify({ assets }),
+    }),
+    () => Promise.resolve({ assets, candidates: {} }),
+  )
 }
 
 export function updateGame(id, payload) {
-  if (DEMO_MODE) return demoUpdateGame(id, payload)
-  return apiRequest(`/games/${id}/`, {
-    method: 'PATCH',
-    body: JSON.stringify(payload),
-  })
+  return withDemoFallback(
+    () => apiRequest(`/games/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+    () => demoUpdateGame(id, payload),
+  )
 }
 
 export function deleteGame(id) {
-  if (DEMO_MODE) return demoDeleteGame(id)
-  return apiRequest(`/games/${id}/`, {
-    method: 'DELETE',
-  })
+  return withDemoFallback(
+    () => apiRequest(`/games/${id}/`, { method: 'DELETE' }),
+    () => demoDeleteGame(id),
+  )
 }
 
 export function searchRawgGames(query) {
-  if (DEMO_MODE) return demoSearchRawgGames(query)
-  return apiRequest(`/games/search/?q=${encodeURIComponent(query)}`)
+  return withDemoFallback(
+    () => apiRequest(`/games/search/?q=${encodeURIComponent(query)}`),
+    () => demoSearchRawgGames(query),
+  )
 }
 
 export function fetchTrendingGames() {
-  if (DEMO_MODE) return demoFetchTrendingGames()
-  return apiRequest('/games/trending/')
+  return withDemoFallback(() => apiRequest('/games/trending/'), () => demoFetchTrendingGames())
 }
 
 export function importRawgGame(rawgId) {
-  if (DEMO_MODE) return demoImportRawgGame(rawgId)
-  return apiRequest('/games/import_rawg/', {
-    method: 'POST',
-    body: JSON.stringify({ rawg_id: rawgId }),
-  })
+  return withDemoFallback(
+    () => apiRequest('/games/import_rawg/', {
+      method: 'POST',
+      body: JSON.stringify({ rawg_id: rawgId }),
+    }),
+    () => demoImportRawgGame(rawgId),
+  )
 }
 
 export function fetchSteamLibrary(steamId) {
-  if (DEMO_MODE) {
-    return Promise.resolve({
+  return withDemoFallback(
+    () => apiRequest(`/steam/library/?steamId=${encodeURIComponent(steamId)}`),
+    () => Promise.resolve({
       steam_id: steamId,
       total_count: 0,
       games: [],
-    })
-  }
-  return apiRequest(`/steam/library/?steamId=${encodeURIComponent(steamId)}`)
+    }),
+  )
 }
 
 export function importSteamLibrary(steamId, appids = []) {
-  if (DEMO_MODE) {
-    return Promise.resolve({
+  return withDemoFallback(
+    () => apiRequest('/steam/import/', {
+      method: 'POST',
+      body: JSON.stringify({ steam_id: steamId, appids }),
+    }),
+    () => Promise.resolve({
       imported_count: 0,
       updated_count: 0,
       games: [],
-    })
-  }
-  return apiRequest('/steam/import/', {
-    method: 'POST',
-    body: JSON.stringify({ steam_id: steamId, appids }),
-  })
+    }),
+  )
 }
 
 export function fetchStats() {
-  if (DEMO_MODE) return demoFetchStats()
-  return apiRequest('/stats/')
+  return withDemoFallback(() => apiRequest('/stats/'), () => demoFetchStats())
 }
