@@ -1,10 +1,12 @@
+const coverPath = (filename) => `${import.meta.env.BASE_URL}covers/${filename}`
+
 const DEMO_GAMES = [
   {
     id: 1,
     rawg_id: 124562,
     name: 'Clair Obscur: Expedition 33',
     slug: 'clair-obscur-expedition-33',
-    background_image: 'https://media.rawg.io/media/games/85a/85a8e01c6687bf23875f3a7f6a7f9c36.jpg',
+    background_image: coverPath('clair-obscur.jpg'),
     description:
       'A turn-based RPG with cinematic presentation, painterly environments, and a dramatic expedition story. This demo record shows how GameMemory combines official metadata with personal notes.',
     released: '2025-04-24',
@@ -56,7 +58,7 @@ const DEMO_GAMES = [
     rawg_id: 326243,
     name: 'Elden Ring',
     slug: 'elden-ring',
-    background_image: 'https://media.rawg.io/media/games/1be/1bed7fae69d1004c09dfe1101d5a3a94.jpg',
+    background_image: coverPath('elden-ring.jpg'),
     description:
       'A fantasy action RPG about exploration, danger, and discovery. Demo data includes gallery, artwork, scores, and personal tags.',
     released: '2022-02-25',
@@ -101,7 +103,7 @@ const DEMO_GAMES = [
     rawg_id: 987001,
     name: 'Hades II',
     slug: 'hades-ii',
-    background_image: 'https://media.rawg.io/media/games/62f/62fd6c5a7e9f9f4a0e4f3b33250f5f37.jpg',
+    background_image: coverPath('hades-ii.jpg'),
     description: 'A stylish roguelike action game with fast combat, mythological characters, and strong replay rhythm.',
     released: '2025-09-25',
     metacritic: null,
@@ -137,7 +139,7 @@ const TRENDING_GAMES = [
     id: 4,
     rawg_id: 990004,
     name: 'Hollow Knight: Silksong',
-    background_image: 'https://media.rawg.io/media/games/95b/95bd7f4f0f7a1f4a2f02f0e5461eb6f6.jpg',
+    background_image: coverPath('silksong.jpg'),
     released: '2025-09-04',
     platforms: ['PC', 'Nintendo Switch', 'PlayStation 5'],
     genres: ['Action', 'Platformer'],
@@ -148,7 +150,7 @@ const TRENDING_GAMES = [
     id: 5,
     rawg_id: 990005,
     name: 'Split Fiction',
-    background_image: 'https://media.rawg.io/media/games/7f6/7f6a1d8df23d522f65019f8b91919d15.jpg',
+    background_image: coverPath('split-fiction.jpg'),
     released: '2025-03-06',
     platforms: ['PC', 'PlayStation 5', 'Xbox Series S/X'],
     genres: ['Adventure', 'Co-op'],
@@ -157,7 +159,7 @@ const TRENDING_GAMES = [
   },
 ]
 
-const STORAGE_KEY = 'gamememory-demo-games'
+const STORAGE_KEY = 'gamememory-demo-games-v2'
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value))
