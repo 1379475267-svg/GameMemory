@@ -8,12 +8,14 @@ import {
   demoFetchStats,
   demoFetchTrendingGames,
   demoImportRawgGame,
+  demoImportSteamGames,
   demoSearchRawgGames,
   demoUpdateGame,
 } from './demoData'
 
 const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
 let runtimeDemoMode = DEMO_MODE
+let latestSteamLibrary = []
 
 async function withDemoFallback(remoteRequest, demoRequest) {
   if (runtimeDemoMode) return demoRequest()
@@ -99,28 +101,25 @@ export function importRawgGame(rawgId) {
   )
 }
 
-export function fetchSteamLibrary(steamId) {
-  return withDemoFallback(
-    () => apiRequest(`/steam/library/?steamId=${encodeURIComponent(steamId)}`),
-    () => Promise.resolve({
-      steam_id: steamId,
-      total_count: 0,
-      games: [],
-    }),
-  )
+export async function fetchSteamLibrary(steamId) {
+  // Steam library reads do not depend on the game archive database, so keep
+  // this feature live even when the rest of the app has fallen back to demo
+  // data.
+  const library = await apiRequest(`/steam/library/?steamId=${encodeURIComponent(steamId)}`)
+  latestSteamLibrary = library.games || []
+  return library
 }
 
 export function importSteamLibrary(steamId, appids = []) {
+  const localImport = () => demoImportSteamGames(latestSteamLibrary, appids)
+  if (runtimeDemoMode) return localImport()
+
   return withDemoFallback(
     () => apiRequest('/steam/import/', {
       method: 'POST',
       body: JSON.stringify({ steam_id: steamId, appids }),
     }),
-    () => Promise.resolve({
-      imported_count: 0,
-      updated_count: 0,
-      games: [],
-    }),
+    localImport,
   )
 }
 

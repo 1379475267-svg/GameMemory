@@ -252,6 +252,73 @@ export function demoImportRawgGame(rawgId) {
   return delay(imported)
 }
 
+export function demoImportSteamGames(steamGames = [], appids = []) {
+  const games = loadGames()
+  const selected = new Set(appids.map(Number))
+  const selectedGames = steamGames.filter((game) => selected.has(Number(game.steam_appid)))
+  let importedCount = 0
+  let updatedCount = 0
+
+  selectedGames.forEach((steamGame) => {
+    const existingIndex = games.findIndex(
+      (game) => Number(game.steam_appid) === Number(steamGame.steam_appid),
+    )
+    const timestamps = {
+      updated_at: new Date().toISOString(),
+    }
+
+    if (existingIndex >= 0) {
+      games[existingIndex] = {
+        ...games[existingIndex],
+        ...timestamps,
+        playtime_forever: steamGame.playtime_forever || 0,
+        playtime_2weeks: steamGame.playtime_2weeks || 0,
+      }
+      updatedCount += 1
+      return
+    }
+
+    games.unshift({
+      id: Math.max(0, ...games.map((game) => Number(game.id) || 0)) + 1,
+      rawg_id: null,
+      steam_appid: steamGame.steam_appid,
+      name: steamGame.name,
+      slug: `steam-${steamGame.steam_appid}`,
+      background_image: steamGame.background_image || '',
+      description: '',
+      released: null,
+      metacritic: null,
+      platforms: ['PC'],
+      genres: [],
+      status: 'backlog',
+      play_platform: 'PC',
+      overall_score: null,
+      experience_tags: [],
+      review: '',
+      screenshots: [],
+      trailers: [],
+      stores: steamGame.store_url
+        ? [{ name: 'Steam', domain: 'store.steampowered.com', url: steamGame.store_url }]
+        : [],
+      developers: [],
+      publishers: [],
+      steamgrid_assets: {},
+      playtime_forever: steamGame.playtime_forever || 0,
+      playtime_2weeks: steamGame.playtime_2weeks || 0,
+      created_at: new Date().toISOString(),
+      ...timestamps,
+    })
+    importedCount += 1
+  })
+
+  saveGames(games)
+  return delay({
+    imported_count: importedCount,
+    updated_count: updatedCount,
+    games: selectedGames,
+  })
+}
+
 export function demoFetchGameMedia(id) {
   return demoFetchGame(id).then((game) => ({
     screenshots: game.screenshots || [],
